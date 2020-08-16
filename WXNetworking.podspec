@@ -6,37 +6,21 @@
 # To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
 #
 
-Pod::Spec.new do |s|
-  s.name             = 'WXNetworking'
-  s.version          = '0.1.0'
-  s.summary          = 'A short description of WXNetworking.'
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
-
-  s.description      = <<-DESC
-TODO: Add long description of the pod here.
-                       DESC
-
-  s.homepage         = 'https://github.com/maowangxin/WXNetworking'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'maowangxin' => 'maowangxin@globalegrow.com' }
-  s.source           = { :git => 'https://github.com/maowangxin/WXNetworking.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
-
-  s.ios.deployment_target = '8.0'
-
-  s.source_files = 'WXNetworking/Classes/**/*'
+Pod::Spec.new do |spec|
+    
+  spec.name         = 'WXNetworking'
+  spec.version      = '1.0'
+  spec.ios.deployment_target = '9.0'
+  spec.summary      = 'iOS基于AFN封装可定制的网络请求框架'
+  spec.homepage     = 'https://github.com/CoderMaoWX/WXNetworking'
+  spec.license      = { :type => 'MIT', :file => 'FILE_LICENSE' }
+  spec.author       = { 'maowangxin' => 'maowangxin_2013@163.com' }
+  spec.source       = { :git => 'https://github.com/CoderMaoWX/WXNetworking.git', :tag => '#{spec.version}' }
+  spec.source_files = 'WXNetworking/*.{h,m}'
+  spec.requires_arc = true
   
-  # s.resource_bundles = {
-  #   'WXNetworking' => ['WXNetworking/Assets/*.png']
-  # }
-
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  spec.dependency 'YYCache'
+  spec.dependency 'AFNetworking'
+  spec.dependency 'YYModel'
+  
 end
