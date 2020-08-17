@@ -9,11 +9,11 @@
 Pod::Spec.new do |spec|
     
   spec.name         = 'WXNetworking'
-  spec.version      = '1.2'
+  spec.version      = '1.3'
   spec.ios.deployment_target = '9.0'
   spec.summary      = 'iOS基于AFN封装可定制的网络请求框架'
   spec.homepage     = 'https://github.com/CoderMaoWX/WXNetworking'
-  spec.license      = { :type => 'MIT', :file => 'FILE_LICENSE' }
+  spec.license      = { :type => 'MIT', :file => 'LICENSE' }
   spec.author       = { 'maowangxin' => 'maowangxin_2013@163.com' }
   spec.source       = { :git => 'https://github.com/CoderMaoWX/WXNetworking.git', :tag => spec.version }
   spec.source_files = 'WXNetworking/*.{h,m}'
