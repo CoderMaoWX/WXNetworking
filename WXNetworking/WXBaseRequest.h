@@ -7,10 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AFURLResponseSerialization.h"
-#import "AFURLRequestSerialization.h"
-
-@class WXResponseModel, AFHTTPRequestSerializer, AFHTTPResponseSerializer, WXNetworkBatchRequest;
+#import <AFNetworking.h>
+@class WXResponseModel, WXNetworkBatchRequest;
 
 ///  HTTP Request method
 typedef NS_ENUM(NSInteger, WXNetworkRequestType) {
