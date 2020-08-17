@@ -1,13 +1,11 @@
-use_frameworks!
+#use_frameworks!
 
-platform :ios, '8.0'
+platform :ios, '9.0'
 
 target 'WXNetworking_Example' do
+  
+  #pod 'AFNetworking'
+  
   pod 'WXNetworking', :path => '../'
 
-  target 'WXNetworking_Tests' do
-    inherit! :search_paths
-
-    
-  end
 end
