@@ -25,7 +25,7 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 @interface WXResponseModel ()
 @property (nonatomic, assign, readwrite) BOOL              isSuccess;
 @property (nonatomic, assign, readwrite) BOOL              isCacheData;
-@property (nonatomic, strong, readwrite) id                responseModel;
+@property (nonatomic, strong, readwrite) id                responseCustomModel;
 @property (nonatomic, strong, readwrite) id                responseObject;//可能为UIimage/NSData/...
 @property (nonatomic, strong, readwrite) NSDictionary      *responseDict;
 @property (nonatomic, assign, readwrite) CGFloat           responseDuration;
@@ -42,16 +42,22 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 - (void)configModel:(WXNetworkRequest *)requestApi
        responseDict:(NSDictionary *)responseDict
 {
-    if (requestApi.responseModelCalss && [responseDict isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *modelJSON = responseDict;
+    if (requestApi.responseCustomModelCalss && [responseDict isKindOfClass:[NSDictionary class]]) {
+        NSString *customModelKey = requestApi.customModelKey;
         
-        NSString *modelKey = [WXNetworkConfig sharedInstance].resultKey;
-        if ([modelKey isKindOfClass:[NSString class]]) {
-            if (responseDict[modelKey]) {
-                modelJSON = responseDict[modelKey];
+        if (!([customModelKey isKindOfClass:[NSString class]] && customModelKey.length > 0)) {
+            customModelKey = [WXNetworkConfig sharedInstance].customModelKey;
+        }
+        if ([customModelKey isKindOfClass:[NSString class]] && customModelKey.length > 0) {
+            NSObject *customObj = responseDict[customModelKey];
+            
+            if ([customObj isKindOfClass:[NSDictionary class]]) {
+                self.responseCustomModel = [requestApi.responseCustomModelCalss yy_modelWithJSON:customObj];
+                
+            } else if ([customObj isKindOfClass:[NSArray class]]) {
+                self.responseCustomModel = [NSArray yy_modelArrayWithClass:requestApi.responseCustomModelCalss json:customObj];
             }
         }
-        self.responseModel = [requestApi.responseModelCalss yy_modelWithJSON:modelJSON];
     }
 }
 @end
@@ -222,7 +228,7 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
         }
     } else {
         //注意:不能直接赋值responseObj, 因为插件库那边会dataWithJSONObject打印会崩溃
-        //responseDcit[config.resultKey] = [responseObj description];
+        //responseDcit[config.customModelKey] = [responseObj description];
     }
     // 只要返回为非Error就包装一个公共的key, 防止页面当失败解析
     if (![responseDcit valueForKey:config.statusKey]) {
@@ -245,7 +251,7 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
             [self judgeShowLoading:YES];
             self.requestDuration = [self getCurrentTimestamp];
             
-            SEL selector = @selector(requestWillStart:);            
+            SEL selector = @selector(requestWillStart:);
             if ([delegate respondsToSelector:selector]) {
                 [delegate requestWillStart:self];
             }
@@ -316,7 +322,7 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
         if (![notifyName isKindOfClass:[NSString class]]) continue;
         
         NSNumber *notifyNumber = notifyDict[notifyName];
-        if ([notifyNumber isKindOfClass:[NSNumber class]]) continue;
+        if (![notifyNumber isKindOfClass:[NSNumber class]]) continue;
         
         if (responseCode == notifyNumber.integerValue) {
             [[NSNotificationCenter defaultCenter] postNotificationName:notifyName object:nil];

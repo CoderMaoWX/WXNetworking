@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readonly) BOOL                        isCacheData;
 @property (nonatomic, assign, readonly) CGFloat                     responseDuration;
 @property (nonatomic, assign, readonly) NSInteger                   responseCode;
-@property (nonatomic, strong, readonly, nullable) id                responseModel;
+@property (nonatomic, strong, readonly, nullable) id                responseCustomModel;
 @property (nonatomic, strong, readonly, nullable) id                responseObject;//NSDictionary/UIImage/NSData/...
 @property (nonatomic, strong, readonly, nullable) NSDictionary      *responseDict;
 @property (nonatomic, copy  , readonly, nullable) NSString          *responseMsg;
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSDictionary* (^cacheResponseBlock)(WXResponseModel *responseModel);
 
 /** 请求成功返回后解析成相应的Model返回 */
-@property (nonatomic, strong) Class     responseModelCalss;
+@property (nonatomic, strong) Class     responseCustomModelCalss;
 
 /** 请求转圈的父视图 */
 @property (nonatomic, strong) UIView    *loadingSuperView;

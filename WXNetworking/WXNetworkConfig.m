@@ -67,11 +67,11 @@ static WXNetworkConfig *_instance;
 /**
  * 需要单独解析Model时的key,(可选)
  */
-- (NSString *)resultKey {
-//    if (!_resultKey) {
-//        _resultKey = @"result";
+- (NSString *)customModelKey {
+//    if (!_customModelKey) {
+//        _customModelKey = @"result";
 //    }
-    return _resultKey;
+    return _customModelKey;
 }
 
 /**

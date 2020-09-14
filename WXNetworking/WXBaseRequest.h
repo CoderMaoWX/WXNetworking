@@ -85,6 +85,9 @@ typedef void(^WXNetworkUploadDataBlock) (id<AFMultipartFormData> formData);
 /** 请求Session对象 */
 @property (nonatomic, strong, readonly) NSURLSession    *urlSession;
 
+/** 需要单独解析Model时的key, 如果单独设置则会忽略单例中的全局解析key */
+@property (nonatomic, copy) NSString        *customModelKey;
+
 
 /*
  * 网络请求方法 (原始的AFNetwork请求，页面上不建议直接用，请使用子类请求方法)

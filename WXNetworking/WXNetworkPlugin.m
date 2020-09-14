@@ -106,8 +106,8 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
     NSString *hostTitle     = [WXNetworkConfig sharedInstance].networkHostTitle ? : @"";
     NSDictionary *requestHeadersInfo = request.requestDataTask.originalRequest.allHTTPHeaderFields;
     NSString *successFlag   = isCacheData ? @"❤️❤️❤️" : (isSuccess ? @"✅✅✅" : @"❌❌❌");
-    NSString *statusString  = isCacheData ? @"缓存数据成功" : (isSuccess ? @"网络数据成功" : @"网络数据失败");
-    NSString *logBody = [NSString stringWithFormat:@"\n%@请求接口地址 %@= %@\n请求参数json=\n%@\n请求头信息: %@\n\n%@返回=\n",
+    NSString *statusString  = isCacheData ? @"缓存数据成功" : (isSuccess ? @"成功" : @"失败");
+    NSString *logBody = [NSString stringWithFormat:@"\n%@请求接口地址 %@= %@\n请求参数json=\n%@\n\n请求头信息: %@\n\n网络数据%@返回=\n",
                          successFlag, hostTitle, request.requestUrl,
                          requestJson, requestHeadersInfo, statusString];
     return logBody;
@@ -121,16 +121,19 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
  */
 + (NSString *)appendingPrintfLogFooter:(WXResponseModel *)responseModel
 {
-    NSString *responseJson  = [responseModel.responseDict description];
-    if ([responseModel.responseDict isKindOfClass:[NSDictionary class]]) {
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:responseModel.responseDict options:NSJSONWritingPrettyPrinted error:nil];
-        if (jsonData) {
-            responseJson = [[NSString alloc] initWithData:jsonData encoding:(NSUTF8StringEncoding)];
+    if (responseModel.isSuccess) {
+        NSString *responseJson  = [responseModel.responseDict description];
+        if ([responseModel.responseDict isKindOfClass:[NSDictionary class]]) {
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:responseModel.responseDict options:NSJSONWritingPrettyPrinted error:nil];
+            if (jsonData) {
+                responseJson = [[NSString alloc] initWithData:jsonData encoding:(NSUTF8StringEncoding)];
+            }
         }
+        return responseJson;
+    } else {
+        return [responseModel.error description];
     }
-    return responseJson;
 }
-
 
 #pragma mark - <ImageType>
 /**

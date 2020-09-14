@@ -19,8 +19,8 @@
 @property (nonatomic, copy) NSString        *statusCode;
 @property (nonatomic, copy) NSString        *messageKey;
 
-/** 需要单独解析Model时的key,(可选) */
-@property (nonatomic, copy) NSString        *resultKey;
+/** 需要解析Model时的全局key,(可选) */
+@property (nonatomic, copy) NSString        *customModelKey;
 
 /** 请求失败时的默认提示 */
 @property (nonatomic, copy) NSString        *requestFailDefaultMessage;

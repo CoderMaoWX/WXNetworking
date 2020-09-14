@@ -149,7 +149,7 @@
 - (WXNetworkUploadDataBlock)uploadConfigDataBaseBlock {
     if (!_uploadConfigDataBlock) {
         __weak typeof(self) weakSelf = self;
-        _uploadConfigDataBlock = ^(id<AFMultipartFormData> formData){            
+        _uploadConfigDataBlock = ^(id<AFMultipartFormData> formData){
             NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
             [formatter setTimeZone:[NSTimeZone localTimeZone]];
             [formatter setDateFormat:KWXRequestAbsoluteDateFormatterKey];
