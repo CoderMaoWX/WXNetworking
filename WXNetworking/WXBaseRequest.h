@@ -94,7 +94,7 @@ typedef void(^WXNetworkUploadDataBlock) (id<AFMultipartFormData> formData);
  * @parm successBlock 请求成功回调block
  * @parm failureBlock 请求失败回调block
  */
-- (NSURLSessionDataTask *)requestWithBlock:(WXNetworkSuccessBlock)successBlock
+- (NSURLSessionDataTask *)baseRequestBlock:(WXNetworkSuccessBlock)successBlock
                               failureBlock:(WXNetworkFailureBlcok)failureBlock;
 
 @end

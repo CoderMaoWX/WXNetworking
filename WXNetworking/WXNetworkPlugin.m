@@ -87,7 +87,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
     WXBaseRequest *baseRequest = [[WXBaseRequest alloc] init];
     baseRequest.requestUrl = uploadLogUrl;
     baseRequest.parameters = uploadInfo;
-    [baseRequest requestWithBlock:nil failureBlock:nil];
+    [baseRequest baseRequestBlock:nil failureBlock:nil];
 }
 
 /**

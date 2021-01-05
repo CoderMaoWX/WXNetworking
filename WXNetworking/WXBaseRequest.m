@@ -89,7 +89,7 @@
 #pragma mark - <Request Methods>
 
 /// 根据不同的type 走不同类型的网络请求
-- (NSURLSessionDataTask *)requestWithBlock:(WXNetworkSuccessBlock)successBlock
+- (NSURLSessionDataTask *)baseRequestBlock:(WXNetworkSuccessBlock)successBlock
                               failureBlock:(WXNetworkFailureBlcok)failureBlock
 {
     AFHTTPSessionManager *manager = [self setupHttpSessionManager];

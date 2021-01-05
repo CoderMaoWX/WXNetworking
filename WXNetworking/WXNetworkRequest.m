@@ -129,7 +129,7 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
         [self readRequestCacheWithBlock:networkBlock];
     }
     [self handleMulticenter:WXNetworkRequestWillStart responseModel:nil];
-    NSURLSessionDataTask *task = [self requestWithBlock:networkBlock failureBlock:networkBlock];
+    NSURLSessionDataTask *task = [self baseRequestBlock:networkBlock failureBlock:networkBlock];
     [self insertCurrentRequestToRequestTableList:task];
     if (![WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog) {
         WXNetworkLog(@"\n👉👉👉页面已发出请求= %@", self.requestUrl);
@@ -178,7 +178,7 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
     if ([responseObj isKindOfClass:[NSError class]]) {
         rspModel.isSuccess     = NO;
         rspModel.isCacheData   = NO;
-        rspModel.responseMsg   = ((NSError *)responseObj).domain;
+        rspModel.responseMsg   = self.configFailMessage;
         rspModel.responseCode  = ((NSError *)responseObj).code;
         rspModel.error         = (NSError *)responseObj;
         
@@ -263,6 +263,11 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
         }
             break;
         case WXNetworkRequestWillStop: {
+            if (![WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog) {
+                NSString *logHeader = [WXNetworkPlugin appendingPrintfLogHeader:responseModel request:self];
+                NSString *logFooter = [WXNetworkPlugin appendingPrintfLogFooter:responseModel];
+                WXNetworkLog(@"%@", [NSString stringWithFormat:@"%@%@", logHeader, logFooter]);
+            }
             SEL selector = @selector(requestWillStop:responseModel:);
             if ([delegate respondsToSelector:selector]) {
                 [delegate requestWillStop:self responseModel:responseModel];
@@ -280,11 +285,6 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
             [self checkPostNotification:responseModel.responseCode];
             [WXNetworkPlugin uploadNetworkResponseJson:responseModel request:self];
             
-            if (![WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog) {
-                NSString *logHeader = [WXNetworkPlugin appendingPrintfLogHeader:responseModel request:self];
-                NSString *logFooter = [WXNetworkPlugin appendingPrintfLogFooter:responseModel];
-                WXNetworkLog(@"%@", [NSString stringWithFormat:@"%@%@", logHeader, logFooter]);
-            }
             SEL selector = @selector(requestDidCompletion:responseModel:);
             if ([delegate respondsToSelector:selector]) {
                 [delegate requestDidCompletion:self responseModel:responseModel];
