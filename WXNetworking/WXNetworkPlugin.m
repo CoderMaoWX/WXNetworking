@@ -227,11 +227,23 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
     [WXNetworkHUD hideLoadingFromView:loadingSuperView];
     
     //转圈背景蒙层
-    UIView *maskBgView = [[UIView alloc] initWithFrame:rect];
+    UIView *maskBgView = [[UIView alloc] init];
+    maskBgView.translatesAutoresizingMaskIntoConstraints = NO;
+//    UIView *maskBgView = [[UIView alloc] initWithFrame:rect];
     maskBgView.backgroundColor = [UIColor clearColor];
     maskBgView.tag = kHUDLoadingViewTag;
     [loadingSuperView addSubview:maskBgView];
     
+    NSDictionary *maskBgViewDic = NSDictionaryOfVariableBindings(maskBgView);
+    [loadingSuperView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[maskBgView]-0-|"
+                                                                             options:0
+                                                                             metrics:nil
+                                                                               views:maskBgViewDic]];
+    [loadingSuperView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[maskBgView]-0-|"
+                                                                             options:0
+                                                                             metrics:nil
+                                                                               views:maskBgViewDic]];
+
     //自定义类动画View
     CGFloat customWidth = 72;
     Class loadingClass = [WXNetworkConfig sharedInstance].requestLaodingCalss;
@@ -245,16 +257,33 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
         
     } else {
         //转圈蒙层
-        CGFloat x = (maskBgView.bounds.size.width - customWidth) /2;
-        CGFloat y = (maskBgView.bounds.size.height - customWidth) /2;
-        if (windowHeight == loadingSuperView.bounds.size.height) {
-            y -= offsetHeight;
-        }
-        UIView *indicatorBg = [[UIView alloc] initWithFrame:CGRectMake(x, y, customWidth, customWidth)];
+//        CGFloat x = (maskBgView.bounds.size.width - customWidth) /2;
+//        CGFloat y = (maskBgView.bounds.size.height - customWidth) /2;
+//        if (windowHeight == loadingSuperView.bounds.size.height) {
+//            y -= offsetHeight;
+//        }
+        UIView *indicatorBg = [[UIView alloc] init];
+//        indicatorBg.frame = CGRectMake(x, y, customWidth, customWidth)
+        indicatorBg.translatesAutoresizingMaskIntoConstraints = NO;
         indicatorBg.layer.masksToBounds = YES;
         indicatorBg.layer.cornerRadius = 12;
         indicatorBg.backgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
         [maskBgView addSubview:indicatorBg];
+        
+        NSMutableArray *result = [[NSMutableArray alloc] init];
+        NSDictionary *viewDic = NSDictionaryOfVariableBindings(indicatorBg);
+        [result addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[indicatorBg(72)]"
+                                                                            options:0
+                                                                            metrics:nil
+                                                                              views:viewDic]];
+        [result addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[indicatorBg(72)]"
+                                                                            options:0
+                                                                            metrics:nil
+                                                                              views:viewDic]];
+        [maskBgView addConstraints:result];
+        [maskBgView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorBg attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:maskBgView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]];
+        //水平居中
+        [maskBgView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorBg attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:maskBgView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0]];
         
         UIActivityIndicatorView *loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
         [loadingView startAnimating];
@@ -262,5 +291,6 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
         [indicatorBg addSubview:loadingView];
     }
 }
+
 @end
 

@@ -124,21 +124,21 @@
 /* Begin PBXFileReference section */
 		02F7FA1B8F9FA73F9613F48780F399D6 /* WXNetworkRequest.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = WXNetworkRequest.m; path = WXNetworking/WXNetworkRequest.m; sourceTree = "<group>"; };
 		05D4AFCBEAF82D8F9C7F1C4716CBF8F0 /* YYClassInfo.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = YYClassInfo.m; path = YYModel/YYClassInfo.m; sourceTree = "<group>"; };
-		10B4D5032A79E82838B810995670FEC0 /* libPods-WXNetworking_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-WXNetworking_Example.a"; path = "libPods-WXNetworking_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		10B4D5032A79E82838B810995670FEC0 /* libPods-WXNetworking_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WXNetworking_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EBBE42678EB1D6D827F600A268B912B /* UIRefreshControl+AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIRefreshControl+AFNetworking.h"; path = "UIKit+AFNetworking/UIRefreshControl+AFNetworking.h"; sourceTree = "<group>"; };
 		22D104D6A3F05C299AC26E1BF5A07A14 /* WXNetworkRequest.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = WXNetworkRequest.h; path = WXNetworking/WXNetworkRequest.h; sourceTree = "<group>"; };
 		27671F518AE1A218B2C3A20155977DF3 /* YYCache-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "YYCache-prefix.pch"; sourceTree = "<group>"; };
 		2C16E7BA5E45CD41105C778C386DEF9A /* Pods-WXNetworking_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WXNetworking_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		2F0B3EFDCD40D310714D8A0D0C6E4FDB /* AFURLRequestSerialization.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = AFURLRequestSerialization.m; path = AFNetworking/AFURLRequestSerialization.m; sourceTree = "<group>"; };
-		3171206587AD15A16980FF4BF44C4628 /* WXNetworking.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = WXNetworking.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		32FFB4DFBED5CAACCE313C80EBE88F9C /* libWXNetworking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libWXNetworking.a; path = libWXNetworking.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		3171206587AD15A16980FF4BF44C4628 /* WXNetworking.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = WXNetworking.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		32FFB4DFBED5CAACCE313C80EBE88F9C /* libWXNetworking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWXNetworking.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3529667561A0EFFABCC3F9D468C285F6 /* NSObject+YYModel.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "NSObject+YYModel.m"; path = "YYModel/NSObject+YYModel.m"; sourceTree = "<group>"; };
 		3C8479A932786CC02C20D5DEFFAFD33D /* AFHTTPSessionManager.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = AFHTTPSessionManager.m; path = AFNetworking/AFHTTPSessionManager.m; sourceTree = "<group>"; };
 		3EBD849185FB3DA0BB92C11A79BAA216 /* YYModel.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = YYModel.h; path = YYModel/YYModel.h; sourceTree = "<group>"; };
 		40BE2DADAFFCFA8333697542A60BE35F /* WXNetworkPlugin.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = WXNetworkPlugin.m; path = WXNetworking/WXNetworkPlugin.m; sourceTree = "<group>"; };
 		44144004D8FAC9CCAA163EC8ABE7FE78 /* WKWebView+AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "WKWebView+AFNetworking.h"; path = "UIKit+AFNetworking/WKWebView+AFNetworking.h"; sourceTree = "<group>"; };
 		474C1541A1C456E8299FA64906D32600 /* Pods-WXNetworking_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-WXNetworking_Example-acknowledgements.plist"; sourceTree = "<group>"; };
-		48ACF38225AF5129416A1F090F6D3286 /* libYYCache.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libYYCache.a; path = libYYCache.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		48ACF38225AF5129416A1F090F6D3286 /* libYYCache.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libYYCache.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49D34BADD4D194B6B099799BEEFBAAA0 /* WXBaseRequest.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = WXBaseRequest.m; path = WXNetworking/WXBaseRequest.m; sourceTree = "<group>"; };
 		4D216A93AB19548D5B694F0CED045D31 /* AFNetworking.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = AFNetworking.xcconfig; sourceTree = "<group>"; };
 		51FB05203728B5EDE0A7765974D62399 /* WXNetworkConfig.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = WXNetworkConfig.m; path = WXNetworking/WXNetworkConfig.m; sourceTree = "<group>"; };
@@ -168,14 +168,14 @@
 		97BF192D607119BBA2FAFD49AA9E1741 /* AFAutoPurgingImageCache.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = AFAutoPurgingImageCache.m; path = "UIKit+AFNetworking/AFAutoPurgingImageCache.m"; sourceTree = "<group>"; };
 		9929CC048E6152396DD97EE49A9AD6C8 /* YYDiskCache.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = YYDiskCache.h; path = YYCache/YYDiskCache.h; sourceTree = "<group>"; };
 		9D2F97194CD5AD5FCCB1887B72120DA4 /* UIImageView+AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIImageView+AFNetworking.h"; path = "UIKit+AFNetworking/UIImageView+AFNetworking.h"; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		A08838619C7E8303B4F1E9DDC1015756 /* YYMemoryCache.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = YYMemoryCache.h; path = YYCache/YYMemoryCache.h; sourceTree = "<group>"; };
 		A1A83F24B7C000AD6F344E4DFBE8ABA5 /* UIButton+AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIButton+AFNetworking.h"; path = "UIKit+AFNetworking/UIButton+AFNetworking.h"; sourceTree = "<group>"; };
-		A4FA15D44DF6BAC7550EDEED10862AA3 /* libAFNetworking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libAFNetworking.a; path = libAFNetworking.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4FA15D44DF6BAC7550EDEED10862AA3 /* libAFNetworking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAFNetworking.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A72A3BBE4F9914BA439002DA667FD346 /* NSObject+YYModel.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "NSObject+YYModel.h"; path = "YYModel/NSObject+YYModel.h"; sourceTree = "<group>"; };
 		A78FE1CE928C044220609F1370EE2B20 /* AFNetworking-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AFNetworking-prefix.pch"; sourceTree = "<group>"; };
 		AD4D82539AC4B537C8227980196AFEE0 /* YYModel.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = YYModel.xcconfig; sourceTree = "<group>"; };
-		AE81B0D1F4C513DB9F9C6F428E9A32D2 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE; sourceTree = "<group>"; };
+		AE81B0D1F4C513DB9F9C6F428E9A32D2 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		AE8D43791CE2303C47AA4AAE2DE377E1 /* UIActivityIndicatorView+AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIActivityIndicatorView+AFNetworking.h"; path = "UIKit+AFNetworking/UIActivityIndicatorView+AFNetworking.h"; sourceTree = "<group>"; };
 		AF017290EAB290F5BA8BE2BF10A43109 /* AFImageDownloader.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = AFImageDownloader.m; path = "UIKit+AFNetworking/AFImageDownloader.m"; sourceTree = "<group>"; };
 		B059DE15D130BF5E665896ED661DAA13 /* AFURLResponseSerialization.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = AFURLResponseSerialization.m; path = AFNetworking/AFURLResponseSerialization.m; sourceTree = "<group>"; };
@@ -190,12 +190,12 @@
 		CC80A1FD58BBBC85222C8658A3685044 /* AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AFNetworking.h; path = AFNetworking/AFNetworking.h; sourceTree = "<group>"; };
 		CE0FD36BCEE1CF21AF2CBA239600A67D /* YYModel-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "YYModel-prefix.pch"; sourceTree = "<group>"; };
 		D2DA87A6A2B1BB21E7F7A7640C709454 /* UIKit+AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIKit+AFNetworking.h"; path = "UIKit+AFNetworking/UIKit+AFNetworking.h"; sourceTree = "<group>"; };
-		D5D3E3C5FD23175BD2D4DDF2277EE8F2 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
+		D5D3E3C5FD23175BD2D4DDF2277EE8F2 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D9B669C8846B1A1DF17AFBC8CB6CC132 /* AFAutoPurgingImageCache.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AFAutoPurgingImageCache.h; path = "UIKit+AFNetworking/AFAutoPurgingImageCache.h"; sourceTree = "<group>"; };
 		DA1AA87F0AD8B27DCC091E9E32446E68 /* YYMemoryCache.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = YYMemoryCache.m; path = YYCache/YYMemoryCache.m; sourceTree = "<group>"; };
 		DEDB39E46D4C0743B3D3E3274E845EF1 /* AFImageDownloader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AFImageDownloader.h; path = "UIKit+AFNetworking/AFImageDownloader.h"; sourceTree = "<group>"; };
 		E267A1C3457ED519F277E28BA3AFA57C /* AFCompatibilityMacros.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AFCompatibilityMacros.h; path = AFNetworking/AFCompatibilityMacros.h; sourceTree = "<group>"; };
-		E460D5B0416D36F66EE8EC89E5D2FA0A /* libYYModel.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libYYModel.a; path = libYYModel.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E460D5B0416D36F66EE8EC89E5D2FA0A /* libYYModel.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libYYModel.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4F197A10F0B3AD6A9D5B73BDCC0F4F7 /* Pods-WXNetworking_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WXNetworking_Example.release.xcconfig"; sourceTree = "<group>"; };
 		E53A34B21C729D5BD2D7BC6375153305 /* WXNetworking-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "WXNetworking-dummy.m"; sourceTree = "<group>"; };
 		E5EA96BEA5783AC4B4D92A2CEB42C0E8 /* YYModel-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "YYModel-dummy.m"; sourceTree = "<group>"; };
@@ -263,7 +263,6 @@
 				B4238CDAD4DEADDE741F24A773DF2F87 /* Support Files */,
 				77EEF95787F7ACE023E0AB74FEE62301 /* UIKit */,
 			);
-			name = AFNetworking;
 			path = AFNetworking;
 			sourceTree = "<group>";
 		};
@@ -432,22 +431,21 @@
 				DA1AA87F0AD8B27DCC091E9E32446E68 /* YYMemoryCache.m */,
 				AF922D7B1111C95DFC6D32A9AADF498C /* Support Files */,
 			);
-			name = YYCache;
 			path = YYCache;
 			sourceTree = "<group>";
 		};
 		D32DDFD0C999AF2766533AE3AB552114 /* WXNetworking */ = {
 			isa = PBXGroup;
 			children = (
-				F053C79F2BCA304803E7C6471ECC02E2 /* WXBaseRequest.h */,
-				49D34BADD4D194B6B099799BEEFBAAA0 /* WXBaseRequest.m */,
+				84D1C41D191974DAAB0A159DF127C29D /* WXNetworking.h */,
 				7EA8EFEB6E05AC15A3548DE7AB8C5BB3 /* WXNetworkConfig.h */,
 				51FB05203728B5EDE0A7765974D62399 /* WXNetworkConfig.m */,
-				84D1C41D191974DAAB0A159DF127C29D /* WXNetworking.h */,
-				7C8D79803BA0367C26AC2D3C50C77958 /* WXNetworkPlugin.h */,
-				40BE2DADAFFCFA8333697542A60BE35F /* WXNetworkPlugin.m */,
+				F053C79F2BCA304803E7C6471ECC02E2 /* WXBaseRequest.h */,
+				49D34BADD4D194B6B099799BEEFBAAA0 /* WXBaseRequest.m */,
 				22D104D6A3F05C299AC26E1BF5A07A14 /* WXNetworkRequest.h */,
 				02F7FA1B8F9FA73F9613F48780F399D6 /* WXNetworkRequest.m */,
+				7C8D79803BA0367C26AC2D3C50C77958 /* WXNetworkPlugin.h */,
+				40BE2DADAFFCFA8333697542A60BE35F /* WXNetworkPlugin.m */,
 				A33A4A5B483BB4BFFD8BE5450D4F3B61 /* Pod */,
 				3B50A4C187CFFE672475A7EEE068F704 /* Support Files */,
 			);
@@ -465,7 +463,6 @@
 				3EBD849185FB3DA0BB92C11A79BAA216 /* YYModel.h */,
 				BBC64C6F46AF94D0A9E043B9A800A66A /* Support Files */,
 			);
-			name = YYModel;
 			path = YYModel;
 			sourceTree = "<group>";
 		};
@@ -1074,8 +1071,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				SYMROOT = "${SRCROOT}/../build";
 			};
