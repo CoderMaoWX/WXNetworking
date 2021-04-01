@@ -1,21 +1,32 @@
 #!/bin/sh
 
-
-#发布WXNetwork网络库
-#pod trunk push WXNetworking.podspec --allow-warnings --verbose --use-libraries
-
+#自动发布WXNetwork网络库shell脚本
 
 #拉取最新
 git pull
 
-VersionString=`grep -E 'spec.version.*=' WXNetworking.podspec`
-VersionNumber=`tr -cd 0-9 <<<"$VersionString"`
+#检索出 spec.version  =''
+VersionText=`grep -E 'spec.version.*=' WXNetworking.podspec`
 
-NewVersionNumber=$(($VersionNumber + 0.1))
+#获取版本号 '2.0'
+VersionNumber=${VersionText#*=}
+
+#去除两边的引号 $VersionNumber | sed 's/^.\(.*\).$/\1/'=
+
+#对版本号进行自增
+NewVersionNumber=$(echo $VersionNumber | sed 's/^.\(.*\).$/\1/' | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}')
+echo ${NewVersionNumber}
+
+ReplaceVersion="'$NewVersionNumber'"
+
+#获取到spec.version所在的行
 LineNumber=`grep -nE 'spec.version.*=' WXNetworking.podspec | cut -d : -f1`
-sed -i "" "${LineNumber}s/${VersionNumber}/${NewVersionNumber}/g" WXNetworking.podspec
 
-echo "\033[41;36m 当前版本号为: ${VersionNumber}, 新制作的版本号为: ${NewVersionNumber} \033[0m "
+#替换里面的版本号数字
+sed -i "" "${LineNumber}s/${VersionNumber}/${ReplaceVersion}/g" WXNetworking.podspec
+
+echo "\033[41;36m 当前版本号为: ${VersionNumber}, 新制作的版本号为: ${ReplaceVersion} \033[0m "
+
 
 #提交所有修改
 git add .
@@ -25,19 +36,17 @@ git commit -am "打 tag: ${NewVersionNumber}"
 git push
 
 
-#删除本地相同的版本号(那最新的)
+#删除本地相同的版本号(拿最新Tag的代码)
 git tag -d ${NewVersionNumber}
 
-#打tag推上远程pod
+#打Tag推上远程pod
 git tag ${NewVersionNumber}
 git push --tags
 
 # 制作并推到远程库
 pod trunk push WXNetworking.podspec --allow-warnings --verbose --use-libraries
 
-
 if [ $? == 0 ] ; then
-
     echo "\033[41;36m 第三方库 WXNetworking Pod库制作成功, 请在项目中使用: pod 'WXNetworking' 导入 \033[0m "
     
     NewVersionURL="https://cocoapods.org/pods/WXNetworking"
