@@ -47,7 +47,7 @@ git push --tags
 pod trunk push WXNetworking.podspec --allow-warnings --verbose --use-libraries
 
 if [ $? == 0 ] ; then
-    echo "\033[41;36m 第三方库 WXNetworking Pod库制作成功, 请在项目中使用: pod 'WXNetworking' 导入 \033[0m "
+    echo "\033[41;36m 第三方库 WXNetworking Pod库制作成功, 请在项目中使用: pod 'WXNetworking', '~>${NewVersionNumber}' 导入 \033[0m "
     
     NewVersionURL="https://cocoapods.org/pods/WXNetworking"
     echo "最新版本号: $NewVersionURL"
