@@ -25,7 +25,7 @@ DEPENDENCIES:
   - WXNetworking (from `../`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://cdn.cocoapods.org/:
     - AFNetworking
     - YYCache
     - YYModel
@@ -40,6 +40,6 @@ SPEC CHECKSUMS:
   YYCache: 8105b6638f5e849296c71f331ff83891a4942952
   YYModel: 2a7fdd96aaa4b86a824e26d0c517de8928c04b30
 
-PODFILE CHECKSUM: 4de6581f0c405b6bd194bc706d56b3d692b5aada
+PODFILE CHECKSUM: 8bc71d6b0af804a61d72bd8b23b1d8a7fd440d33
 
 COCOAPODS: 1.9.3
