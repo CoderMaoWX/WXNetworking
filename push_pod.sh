@@ -37,7 +37,7 @@ git push
 
 
 #删除本地相同的版本号(拿最新Tag的代码)
-git tag -d ${NewVersionNumber}
+#git tag -d ${NewVersionNumber}
 
 #打Tag推上远程pod
 git tag ${NewVersionNumber}
