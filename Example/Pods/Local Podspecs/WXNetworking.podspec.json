@@ -1,6 +1,6 @@
 {
   "name": "WXNetworking",
-  "version": "2.2",
+  "version": "2.1",
   "platforms": {
     "ios": "9.0"
   },
@@ -15,7 +15,7 @@
   },
   "source": {
     "git": "https://github.com/CoderMaoWX/WXNetworking.git",
-    "tag": "2.2"
+    "tag": "2.1"
   },
   "source_files": "WXNetworking/*.{h,m}",
   "requires_arc": true,

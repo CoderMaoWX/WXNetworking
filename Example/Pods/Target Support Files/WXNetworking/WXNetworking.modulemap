@@ -1,6 +1,0 @@
-framework module WXNetworking {
-  umbrella header "WXNetworking-umbrella.h"
-
-  export *
-  module * { export * }
-}
