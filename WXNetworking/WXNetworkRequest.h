@@ -106,13 +106,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)cacheKey;
 
 /*
- * 单个网络请求->代理回调
+ * 单个网络请求: (代理回调方式)
  * @parm networkDelegate 请求成功失败回调代理
  */
 - (NSURLSessionDataTask *)startRequestWithDelegate:(id<WXNetworkDelegate>)responseDelegate;
 
 /*
- * 单个网络请求->Block回调
+ * 单个网络请求: (Block回调方式)
  * @parm responseBlock 请求响应block
  */
 - (NSURLSessionDataTask *)startRequestWithBlock:(WXNetworkResponseBlock)responseBlock;
@@ -132,8 +132,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WXNetworkBatchRequest : NSObject
 
-/** 批量请求是否都请求成功了 */
-@property(nonatomic, assign, readonly) BOOL isAllSuccess;
+/** 全部请求是否都请求完成了 */
+@property(nonatomic, assign, readonly) BOOL isAllDone;
+
+
+/**
+ 批量网络请求: (代理回调方式)
+
+ @param responseBlock 请求全部完成后的响应block回调
+ @param batchRequestArr 请求WXNetworkRequest对象数组
+ @param shouldAllDone 是否等待全部请求完成才回调, 否则回调多次
+ */
++ (void)startRequestWithDelegate:(WXNetworkBatchBlock)responseBlock
+                 batchRequestArr:(NSArray<WXNetworkRequest *> *)batchRequestArr
+                     waitAllDone:(BOOL)shouldAllDone;
 
 /**
  * 便捷初始化多并发请求函数
@@ -143,22 +155,22 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)batchArrayRequest:(NSArray<WXNetworkRequest *> *)requestArray;
 
 /**
- 批量网络请求
+ 批量网络请求: (代理回调方式)
 
  @param responseDelegate 请求全部完成后的响应代理回调
- @param shouldAllSuccess 是否等待全部请求完成才回调
+ @param shouldAllDone 是否等待全部请求完成才回调, 否则回调多次
  */
 - (void)startRequestWithDelegate:(id<WXNetworkBatchDelegate>)responseDelegate
-                  waitAllSuccess:(BOOL)shouldAllSuccess;
+                  waitAllDone:(BOOL)shouldAllDone;
 
 /**
- 批量网络请求
+ 批量网络请求: (Block回调方式)
 
  @param responseBlock 请求全部完成后的响应block回调
- @param shouldAllSuccess 是否等待全部请求完成才回调
+ @param shouldAllDone 是否等待全部请求完成才回调, 否则回调多次
  */
 - (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
-               waitAllSuccess:(BOOL)shouldAllSuccess;
+               waitAllDone:(BOOL)shouldAllDone;
 
 @end
 

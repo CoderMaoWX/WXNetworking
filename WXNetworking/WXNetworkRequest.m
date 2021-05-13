@@ -465,11 +465,13 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 - (void)judgeShowLoading:(BOOL)show {
     if (![WXNetworkConfig sharedInstance].showRequestLaoding) return;
     if (![self.loadingSuperView isKindOfClass:[UIView class]]) return;
-    if (show) {
-        [WXNetworkHUD showLoadingToView:self.loadingSuperView];
-    } else {
-        [WXNetworkHUD hideLoadingFromView:self.loadingSuperView];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (show) {
+            [WXNetworkHUD showLoadingToView:self.loadingSuperView];
+        } else {
+            [WXNetworkHUD hideLoadingFromView:self.loadingSuperView];
+        }
+    });
 }
 
 - (double)getCurrentTimestamp {
