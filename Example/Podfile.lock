@@ -14,7 +14,7 @@ PODS:
   - AFNetworking/Serialization (4.0.1)
   - AFNetworking/UIKit (4.0.1):
     - AFNetworking/NSURLSession
-  - WXNetworking (2.1):
+  - WXNetworking (2.2):
     - AFNetworking
     - YYCache
     - YYModel
@@ -36,10 +36,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: 7864c38297c79aaca1500c33288e429c3451fdce
-  WXNetworking: cad7c96628060ed4ae5f274f86c2eb60854c931c
+  WXNetworking: d1b3d1a31a325edeb6270fc46a0e6cfd0e0981e6
   YYCache: 8105b6638f5e849296c71f331ff83891a4942952
   YYModel: 2a7fdd96aaa4b86a824e26d0c517de8928c04b30
 
-PODFILE CHECKSUM: 8bc71d6b0af804a61d72bd8b23b1d8a7fd440d33
+PODFILE CHECKSUM: 8ce10456d6354f22e89b648eb2fb42509dc000e2
 
 COCOAPODS: 1.9.3

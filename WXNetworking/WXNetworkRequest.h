@@ -42,11 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  多个网络请求完成后响应一次回调
 
- @param batchRequest 请求对象数组
- @param responseModelArray 响应对象数组
+ @param batchRequest 批量请求管理对象
  */
-- (void)wxBatchResponseWithRequest:(WXNetworkBatchRequest *)batchRequest
-                         modelArray:(NSArray<WXResponseModel *> *)responseModelArray;
+- (void)wxBatchResponseWithRequest:(WXNetworkBatchRequest *)batchRequest;
 @end
 
 
@@ -101,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSArray<id<WXNetworkMulticenter>> *requestAccessories;
 
 /*
- * 缓存key, 可用于清除指定请求
+ * 缓存key, 可用于清除指定请求缓存
  */
 - (NSString *)cacheKey;
 
@@ -132,45 +130,50 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WXNetworkBatchRequest : NSObject
 
+/** 全部请求对象, 响应时按添加顺序返回 */
+@property (nonatomic, strong) NSArray<WXNetworkRequest *> *requestArray;
+
 /** 全部请求是否都请求完成了 */
 @property(nonatomic, assign, readonly) BOOL isAllDone;
 
+/** 全部响应数据,按请求Api的添加顺序返回 */
+@property (nonatomic, strong, readonly) NSArray<WXResponseModel *> *responseDataArray;
+
+/** 根据指定的请求获取响应数据 */
+- (WXResponseModel *)responseOfRequest:(WXNetworkRequest *)request;
+
+/** 取消所有请求 */
+- (void)cancelAllRequest;
+
 
 /**
  批量网络请求: (代理回调方式)
-
+ 
  @param responseBlock 请求全部完成后的响应block回调
  @param batchRequestArr 请求WXNetworkRequest对象数组
- @param shouldAllDone 是否等待全部请求完成才回调, 否则回调多次
+ @param waitAllDone 是否等待全部请求完成才回调, 否则回调多次
  */
-+ (void)startRequestWithDelegate:(WXNetworkBatchBlock)responseBlock
-                 batchRequestArr:(NSArray<WXNetworkRequest *> *)batchRequestArr
-                     waitAllDone:(BOOL)shouldAllDone;
-
-/**
- * 便捷初始化多并发请求函数
- * @param requestArray 请求WXNetworkRequest对象数组
- * @return 多并发请求对象
- */
-+ (instancetype)batchArrayRequest:(NSArray<WXNetworkRequest *> *)requestArray;
-
-/**
- 批量网络请求: (代理回调方式)
-
- @param responseDelegate 请求全部完成后的响应代理回调
- @param shouldAllDone 是否等待全部请求完成才回调, 否则回调多次
- */
-- (void)startRequestWithDelegate:(id<WXNetworkBatchDelegate>)responseDelegate
-                  waitAllDone:(BOOL)shouldAllDone;
++ (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
+                batchRequests:(NSArray<WXNetworkRequest *> *)batchRequestArr
+                  waitAllDone:(BOOL)waitAllDone;
 
 /**
  批量网络请求: (Block回调方式)
-
+ 
  @param responseBlock 请求全部完成后的响应block回调
- @param shouldAllDone 是否等待全部请求完成才回调, 否则回调多次
+ @param waitAllDone 是否等待全部请求完成才回调, 否则回调多次
  */
 - (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
-               waitAllDone:(BOOL)shouldAllDone;
+                  waitAllDone:(BOOL)waitAllDone;
+
+/**
+ 批量网络请求: (代理回调方式)
+ 
+ @param responseDelegate 请求全部完成后的响应代理回调
+ @param waitAllDone 是否等待全部请求完成才回调, 否则回调多次
+ */
+- (void)startRequestWithDelegate:(id<WXNetworkBatchDelegate>)responseDelegate
+                     waitAllDone:(BOOL)waitAllDone;
 
 @end
 

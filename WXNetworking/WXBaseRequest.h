@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, WXNetworkRequestType) {
 };
 
 typedef void(^WXNetworkResponseBlock) (WXResponseModel *responseModel);
-typedef void(^WXNetworkBatchBlock) (NSArray<WXResponseModel *> *responseModelArray, WXNetworkBatchRequest *batchRequest);
+typedef void(^WXNetworkBatchBlock) (WXNetworkBatchRequest *batchRequest);
 typedef void(^WXNetworkSuccessBlock) (id responseObject);
 typedef void(^WXNetworkFailureBlcok) (NSError *error);
 typedef void(^WXNetworkProgressBlock) (NSProgress *progress);

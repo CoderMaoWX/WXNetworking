@@ -507,85 +507,96 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 @property (nonatomic, weak) id<WXNetworkBatchDelegate>  responseBatchDelegate;
 @property (nonatomic, copy) WXNetworkBatchBlock         responseBatchBlock;
 @property (nonatomic, copy) WXNetworkResponseBlock      configBatchDelegateCallback;
-@property (nonatomic, assign) NSInteger                  requestCount;
-@property (nonatomic, strong) NSMutableArray             *requestApiArray;
-@property (nonatomic, strong) NSMutableDictionary        *responseInfoDict;
-@property(nonatomic, assign, readwrite) BOOL             isAllSuccess;
-@property (nonatomic, assign) BOOL                       hasMarkBatchFailure;
-@property (nonatomic, assign) BOOL                       waitAllSuccess;
+@property (nonatomic, assign) NSInteger                 requestCount;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, WXResponseModel *> *responseInfoDict;
+@property(nonatomic, assign, readwrite) BOOL            isAllSuccess;
+@property (nonatomic, assign) BOOL                      hasMarkBatchFailure;
+@property (nonatomic, assign) BOOL                      waitAllSuccess;
 @property (nonatomic, strong) WXNetworkBatchRequest     *batchRequest;
+/** 全部响应数据,按请求Api的添加顺序返回 */
+@property (nonatomic, strong) NSArray                   *responseDataArray;
 @end
 
 @implementation WXNetworkBatchRequest
 
-/**
- * 便捷初始化多并发请求函数
- * @param requestArray 请求WXNetworkRequest对象数组
- * @return 多并发请求对象
- */
-+ (instancetype)batchArrayRequest:(NSArray<WXNetworkRequest *> *)requestArray {
-    return [[WXNetworkBatchRequest alloc] initWithRequestArray:requestArray];
+
+/** 根据指定的请求获取响应数据 */
+- (WXResponseModel *)responseOfRequest:(WXNetworkRequest *)request {
+    WXResponseModel *rspModel = self.responseInfoDict[request.apiUniquelyIp];
+    return rspModel;
 }
 
-- (instancetype)initWithRequestArray:(NSArray<WXNetworkRequest *> *)requestArray {
-    self = [super init];
-    if (self) {
-        _requestApiArray = [requestArray copy];
-        _requestCount = _requestApiArray.count;
-        for (WXNetworkRequest *requestApi in _requestApiArray) {
-            BOOL isRequestApi = [requestApi isKindOfClass:[WXNetworkRequest class]];
-            if (!isRequestApi) {
-                NSAssert(isRequestApi, KWXRequestRequestArrayAssert);
-                return nil;
-            }
-        }
-    }
-    return self;
+/** 取消所有请求 */
+- (void)cancelAllRequest {
+    [WXNetworkRequest cancelRequestsWithApiList:self.requestArray];
 }
 
-/**
- 批量网络请求
- 
- @param responseDelegate 请求完成响应代理回调
- @param waitAllSuccess 是否等待全部请求完成
- */
-- (void)startRequestWithDelegate:(id<WXNetworkBatchDelegate>)responseDelegate
-                  waitAllSuccess:(BOOL)waitAllSuccess
-{
-    BOOL isApiArray = [_requestApiArray isKindOfClass:[NSArray class]];
+- (void)setRequestArray:(NSArray<WXNetworkRequest *> *)requestArray {
+    BOOL isApiArray = [requestArray isKindOfClass:[NSArray class]];
     if (!isApiArray) {
         NSAssert(isApiArray, KWXRequestRequestArrayObjAssert);
         return ;
     }
-    self.batchRequest = self;
-    self.responseBatchDelegate = responseDelegate;
-    self.waitAllSuccess = waitAllSuccess;
-    self.responseBatchBlock = nil;
-    for (WXNetworkRequest *serverApi in self.requestApiArray) {
-        serverApi.configResponseCallback = self.configBatchDelegateCallback;
-        [serverApi startRequestWithDelegate:responseDelegate];
+    for (WXNetworkRequest *requestApi in requestArray) {
+        BOOL isRequestApi = [requestApi isKindOfClass:[WXNetworkRequest class]];
+        if (!isRequestApi) {
+            NSAssert(isRequestApi, KWXRequestRequestArrayAssert);
+            return;
+        }
     }
+    _requestArray = [requestArray copy];
+    _requestCount = requestArray.count;
+}
+
+/**
+ 批量网络请求: (代理回调方式)
+
+ @param responseBlock 请求全部完成后的响应block回调
+ @param batchRequestArr 请求WXNetworkRequest对象数组
+ @param waitAllDone 是否等待全部请求完成才回调, 否则回调多次
+ */
++ (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
+                batchRequests:(NSArray<WXNetworkRequest *> *)batchRequestArr
+                  waitAllDone:(BOOL)waitAllDone {
+    WXNetworkBatchRequest *batchRequest = [[WXNetworkBatchRequest alloc] init];
+    batchRequest.requestArray = batchRequestArr;
+    [batchRequest startRequestWithBlock:responseBlock
+                            waitAllDone:waitAllDone];
 }
 
 /**
  *批量网络请求
  
  @param responseBlock 请求完成响应block回调
- @param waitAllSuccess 是否等待全部请求完成
+ @param waitAllDone 是否等待全部请求完成
  */
 - (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
-               waitAllSuccess:(BOOL)waitAllSuccess {
-    BOOL isApiArray = [_requestApiArray isKindOfClass:[NSArray class]];
-    if (!isApiArray) {
-        NSAssert(isApiArray, KWXRequestRequestArrayObjAssert);
-        return ;
-    }
+                  waitAllDone:(BOOL)waitAllDone {
     self.batchRequest = self;
     self.responseBatchBlock = responseBlock;
-    self.waitAllSuccess = waitAllSuccess;
+    self.waitAllSuccess = waitAllDone;
     self.responseBatchDelegate = nil;
-    for (WXNetworkRequest *requestApi in self.requestApiArray) {
+    for (WXNetworkRequest *requestApi in self.requestArray) {
         [requestApi startRequestWithBlock:self.configBatchDelegateCallback];
+    }
+}
+
+/**
+ 批量网络请求
+ 
+ @param responseDelegate 请求完成响应代理回调
+ @param waitAllDone 是否等待全部请求完成
+ */
+- (void)startRequestWithDelegate:(id<WXNetworkBatchDelegate>)responseDelegate
+                     waitAllDone:(BOOL)waitAllDone
+{
+    self.batchRequest = self;
+    self.responseBatchDelegate = responseDelegate;
+    self.waitAllSuccess = waitAllDone;
+    self.responseBatchBlock = nil;
+    for (WXNetworkRequest *serverApi in self.requestArray) {
+        serverApi.configResponseCallback = self.configBatchDelegateCallback;
+        [serverApi startRequestWithDelegate:responseDelegate];
     }
 }
 
@@ -598,7 +609,7 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
             }
             if (!responseModel.isSuccess && !weakSelf.waitAllSuccess && !weakSelf.hasMarkBatchFailure) {
                 weakSelf.hasMarkBatchFailure = YES;
-                for (WXNetworkRequest *requestApi in weakSelf.requestApiArray) {
+                for (WXNetworkRequest *requestApi in weakSelf.requestArray) {
                     if (![requestApi.apiUniquelyIp isEqualToString:responseModel.apiUniquelyIp]) {
                         [requestApi.requestDataTask cancel];
                         [requestApi.urlSession finishTasksAndInvalidate];
@@ -618,20 +629,21 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
         if (self.requestCount <= 0) {
             self.isAllSuccess = !self.hasMarkBatchFailure;
             NSMutableArray *responseArray = [NSMutableArray array];
-            for (NSInteger i=0; i<self.requestApiArray.count; i++) {
-                WXNetworkRequest *requestApi = self.requestApiArray[i];
+            for (NSInteger i=0; i<self.requestArray.count; i++) {
+                WXNetworkRequest *requestApi = self.requestArray[i];
                 id responseObj = self.responseInfoDict[requestApi.apiUniquelyIp];
                 if (responseObj) {
                     [responseArray addObject:responseObj];
                 }
             }
             // 请求最终回调
+            self.responseDataArray = responseArray;
             if (self.responseBatchBlock) {
-                self.responseBatchBlock(responseArray, self);
+                self.responseBatchBlock(self);
                 
             } else if (self.responseBatchDelegate &&
-                       [self.responseBatchDelegate respondsToSelector:@selector(wxBatchResponseWithRequest:modelArray:)]) {
-                [self.responseBatchDelegate wxBatchResponseWithRequest:self modelArray:responseArray];
+                       [self.responseBatchDelegate respondsToSelector:@selector(wxBatchResponseWithRequest:)]) {
+                [self.responseBatchDelegate wxBatchResponseWithRequest:self];
             }
             self.batchRequest = nil;
         }
