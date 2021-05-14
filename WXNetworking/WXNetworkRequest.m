@@ -508,12 +508,11 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 @property (nonatomic, copy) WXNetworkBatchBlock         responseBatchBlock;
 @property (nonatomic, copy) WXNetworkResponseBlock      configBatchDelegateCallback;
 @property (nonatomic, assign) NSInteger                 requestCount;
-@property (nonatomic, strong) NSMutableDictionary<NSString *, WXResponseModel *> *responseInfoDict;
 @property(nonatomic, assign, readwrite) BOOL            isAllSuccess;
 @property (nonatomic, assign) BOOL                      hasMarkBatchFailure;
 @property (nonatomic, assign) BOOL                      waitAllSuccess;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, WXResponseModel *> *responseInfoDict;
 @property (nonatomic, strong) WXNetworkBatchRequest     *batchRequest;
-/** 全部响应数据,按请求Api的添加顺序返回 */
 @property (nonatomic, strong) NSArray                   *responseDataArray;
 @end
 
@@ -521,7 +520,8 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 
 
 /** 根据指定的请求获取响应数据 */
-- (WXResponseModel *)responseOfRequest:(WXNetworkRequest *)request {
+- (WXResponseModel *)responseForRequest:(WXNetworkRequest *)request {
+    if (![request isKindOfClass:[WXNetworkRequest class]]) return nil;
     WXResponseModel *rspModel = self.responseInfoDict[request.apiUniquelyIp];
     return rspModel;
 }
@@ -572,6 +572,13 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
  */
 - (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
                   waitAllDone:(BOOL)waitAllDone {
+    for (WXNetworkRequest *requestApi in self.requestArray) {
+        BOOL isRequestApi = [requestApi isKindOfClass:[WXNetworkRequest class]];
+        if (!isRequestApi) {
+            NSAssert(isRequestApi, KWXRequestRequestArrayAssert);
+            return;
+        }
+    }
     self.batchRequest = self;
     self.responseBatchBlock = responseBlock;
     self.waitAllSuccess = waitAllDone;
@@ -590,6 +597,13 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 - (void)startRequestWithDelegate:(id<WXNetworkBatchDelegate>)responseDelegate
                      waitAllDone:(BOOL)waitAllDone
 {
+    for (WXNetworkRequest *requestApi in self.requestArray) {
+        BOOL isRequestApi = [requestApi isKindOfClass:[WXNetworkRequest class]];
+        if (!isRequestApi) {
+            NSAssert(isRequestApi, KWXRequestRequestArrayAssert);
+            return;
+        }
+    }
     self.batchRequest = self;
     self.responseBatchDelegate = responseDelegate;
     self.waitAllSuccess = waitAllDone;

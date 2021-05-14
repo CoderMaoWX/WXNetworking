@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) NSArray<WXResponseModel *> *responseDataArray;
 
 /** 根据指定的请求获取响应数据 */
-- (WXResponseModel *)responseOfRequest:(WXNetworkRequest *)request;
+- (WXResponseModel *)responseForRequest:(WXNetworkRequest *)request;
 
 /** 取消所有请求 */
 - (void)cancelAllRequest;

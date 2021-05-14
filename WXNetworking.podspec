@@ -19,8 +19,8 @@ Pod::Spec.new do |spec|
   spec.source_files = 'WXNetworking/*.{h,m}'
   spec.requires_arc = true
   
-  spec.dependency 'YYCache'
   spec.dependency 'AFNetworking'
+  spec.dependency 'YYCache'
   spec.dependency 'YYModel'
   
 end

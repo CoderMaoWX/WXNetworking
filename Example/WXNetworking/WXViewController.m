@@ -61,7 +61,6 @@
     api1.requestUrl = @"http://wthrcdn.etouch.cn/weather_mini";
     api1.parameters = @{@"city" : @"北京"};
     
-    
     WXNetworkRequest *api2 = [[WXNetworkRequest alloc] init];
     api2.requestType = WXNetworkRequestTypeGET;
     api2.loadingSuperView = self.view;
@@ -75,23 +74,23 @@
     };
     
     WXNetworkBatchRequest *batchRequest = [WXNetworkBatchRequest new];
-    batchRequest.requestArray = @[api1, api2];
+    batchRequest.requestArray = @[api2, api1];
     
     ///1. 代理方法
     [batchRequest startRequestWithDelegate:self waitAllDone:YES];
     
-//
-//    ///2. Block方法
-//    [batchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
-//        NSLog(@"批量请求回调1: %@", batchRequest.responseDataArray.firstObject);
-//        NSLog(@"批量请求回调2: %@", [batchRequest responseOfRequest:api1]);
-//    } waitAllDone:YES];
-//
-//
-//    ///3. 类Block方法
-//    [WXNetworkBatchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
-//        NSLog(@"批量请求回调: %d", batchRequest.isAllDone);
-//    } batchRequests:@[api1, api2] waitAllDone:YES];
+
+    ///2. Block方法
+    [batchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
+        NSLog(@"批量请求回调1: %@", batchRequest.responseDataArray.firstObject);
+        NSLog(@"批量请求回调2: %@", [batchRequest responseForRequest:api1]);
+    } waitAllDone:YES];
+
+
+    ///3. 类Block方法
+    [WXNetworkBatchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
+        NSLog(@"批量请求回调3: %d", [batchRequest responseForRequest:api1]);
+    } batchRequests:@[api1, api2] waitAllDone:YES];
 }
 
 #pragma mark - <WXNetworkBatchDelegate>
@@ -103,10 +102,10 @@
  */
 - (void)wxBatchResponseWithRequest:(WXNetworkBatchRequest *)batchRequest {
     NSLog(@"批量请求回调1: %@", batchRequest.responseDataArray.firstObject);
-    NSLog(@"批量请求回调2: %@", [batchRequest responseOfRequest:batchRequest.requestArray.firstObject]);
+    NSLog(@"批量请求回调2: %@", [batchRequest responseForRequest:batchRequest.requestArray.firstObject]);
 }
 
-#pragma mark - <WXNetwork
+#pragma mark - <WXNetworkMulticenter>
 
 /**
  * 网络请求将要开始回调
