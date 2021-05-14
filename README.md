@@ -22,7 +22,7 @@ pod 'WXNetworking'
 
 ## Author
 
-maowangxin, maowangxin@globalegrow.com
+maowangxin, maowangxin_2013@163.com
 
 ## License
 
