@@ -9,7 +9,7 @@
 Pod::Spec.new do |spec|
     
   spec.name         = 'WXNetworking'
-  spec.version      ='2.4'
+  spec.version      ='2.5'
   spec.ios.deployment_target = '9.0'
   spec.summary      = 'iOS基于AFN封装可定制的网络请求框架'
   spec.homepage     = 'https://github.com/CoderMaoWX/WXNetworking'
