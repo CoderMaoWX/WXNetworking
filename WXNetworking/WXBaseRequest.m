@@ -150,17 +150,15 @@
     if (!_uploadConfigDataBlock) {
         __weak typeof(self) weakSelf = self;
         _uploadConfigDataBlock = ^(id<AFMultipartFormData> formData){
-            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-            [formatter setTimeZone:[NSTimeZone localTimeZone]];
-            [formatter setDateFormat:KWXRequestAbsoluteDateFormatterKey];
             
-            for (NSData *fileData in weakSelf.uploadFileDataArr) {
+            for (NSInteger i=0; i<weakSelf.uploadFileDataArr.count; i++) {
+                NSData *fileData = weakSelf.uploadFileDataArr[i];
                 if (![fileData isKindOfClass:[NSData class]]) continue;
-                NSArray *typeArray = [WXNetworkPlugin typeForImageData:fileData];
-                NSString *locationString = [formatter stringFromDate:[NSDate date]];
-                NSString *fileName = [locationString stringByAppendingFormat:@".%@", typeArray.lastObject];
+                NSArray *typeArray = [WXNetworkPlugin typeForFileData:fileData];
+                NSString *name = [typeArray.firstObject stringByDeletingLastPathComponent];
+                NSString *fileName = [NSString stringWithFormat:@"%@-%d.%@", name, i, typeArray.lastObject];
                 [formData appendPartWithFileData:fileData
-                                            name:@"image"
+                                            name:name
                                         fileName:fileName
                                         mimeType:typeArray.firstObject];
             }

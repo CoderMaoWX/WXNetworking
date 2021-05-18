@@ -64,7 +64,7 @@ FOUNDATION_EXPORT NSString *const KWXNetworkBatchRequestDeallocDesc;
  @param imageData 图片Data
  @return 图片类型描述数组
  */
-+ (NSArray *)typeForImageData:(NSData *)imageData;
++ (NSArray *)typeForFileData:(NSData *)imageData;
 
 /**
  MD5加密字符串
