@@ -11,6 +11,9 @@
 #import "WXNetworkConfig.h"
 #import <AFNetworking/AFNetworking.h>
 
+///使用全局静态变量避免每次创建
+static AFHTTPSessionManager *_sessionManager;
+
 @interface WXBaseRequest ()
 @property (nonatomic, strong, readwrite) NSDictionary           *finalParameters;
 @property (nonatomic, strong, readwrite) NSURLSessionDataTask   *requestDataTask;
@@ -21,7 +24,7 @@
 
 #pragma mark - <AFN-SessionManager>
 
-- (AFHTTPSessionManager*)setupHttpSessionManager {
++ (void)initialize {
     NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
     Class class = [WXNetworkConfig sharedInstance].urlSessionProtocolClasses;
     if (class) {
@@ -33,42 +36,41 @@
             sessionConfig.multipathServiceType = NSURLSessionMultipathServiceTypeHandover;
         }
     }
-    
-    // AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithSessionConfiguration:sessionConfig];
-    
+    _sessionManager = [[AFHTTPSessionManager alloc] initWithSessionConfiguration:sessionConfig];
+}
+
+- (AFHTTPSessionManager *)setupHttpSessionManager {
     // 自定义请求序列化对象
     if ([self.requestSerializer isKindOfClass:[AFHTTPRequestSerializer class]]) {
-        manager.requestSerializer = self.requestSerializer;
+        _sessionManager.requestSerializer = self.requestSerializer;
     } else {
-        manager.requestSerializer = [AFJSONRequestSerializer serializer];
-        manager.requestSerializer.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-        manager.requestSerializer.timeoutInterval = self.timeOut ? : 30;//默认请求超时时间30秒
+        _sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
+        _sessionManager.requestSerializer.timeoutInterval = self.timeOut ? : 30;//默认请求超时时间30秒
     }
+    _sessionManager.requestSerializer.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
     
     // 添加自定义请求头信息
     NSDictionary *headerDict = self.requestHeaderDict;
     if ([headerDict isKindOfClass:[NSDictionary class]]) {
         for (NSString *headerField in headerDict.allKeys) {
             if (![headerField isKindOfClass:[NSString class]]) continue;
-            
             NSString *headerValue = headerDict[headerField];
             if (![headerValue isKindOfClass:[NSString class]]) continue;
-            [manager.requestSerializer setValue:headerValue forHTTPHeaderField:headerField];
+            [_sessionManager.requestSerializer setValue:headerValue forHTTPHeaderField:headerField];
         }
     }
     // 自定义响应序列化对象
     if ([self.responseSerializer isKindOfClass:[AFHTTPResponseSerializer class]]) {
-        manager.responseSerializer = self.responseSerializer;
+        _sessionManager.responseSerializer = self.responseSerializer;
     } else {
-        manager.responseSerializer = [AFJSONResponseSerializer serializer];
+        _sessionManager.responseSerializer = [AFJSONResponseSerializer serializer];
     }
     
     // 添加额外响应解析类型
-    NSMutableSet *acceptTypesSet = [NSMutableSet setWithSet:manager.responseSerializer.acceptableContentTypes];
+    NSMutableSet *acceptTypesSet = [NSMutableSet setWithSet:_sessionManager.responseSerializer.acceptableContentTypes];
     [acceptTypesSet addObjectsFromArray:@[@"application/zip", @"text/html", @"text/plain"]];
-    manager.responseSerializer.acceptableContentTypes = acceptTypesSet;
-    return manager;
+    _sessionManager.responseSerializer.acceptableContentTypes = acceptTypesSet;
+    return _sessionManager;
 }
 
 - (NSDictionary *)finalParameters {
@@ -123,7 +125,6 @@
         } else if (successBlock) {
             successBlock(responseObject);
         }
-        [manager.session finishTasksAndInvalidate];
     };
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
                                                    uploadProgress:self.uploadProgressBlock

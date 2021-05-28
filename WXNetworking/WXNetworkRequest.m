@@ -67,7 +67,6 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 
 static NSMutableDictionary<NSString *, NSDictionary *> *         _globleRequestList;
 static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksList;
-static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionList;
 
 @interface WXNetworkRequest ()
 @property (nonatomic, copy) NSString                *cacheKey;
@@ -85,7 +84,6 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 + (void)initialize {
     _globleRequestList = [NSMutableDictionary dictionary];
     _globleTasksList   = [NSMutableDictionary dictionary];
-    _globleSessionList = [NSMutableDictionary dictionary];
 }
 
 #pragma mark - <StartNetwork>
@@ -377,7 +375,6 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 }
 
 - (void)saveResponseObjToCache:(WXResponseModel *)responseModel {
-    
     if (self.cacheResponseBlock) {
         NSDictionary *customResponseObject = self.cacheResponseBlock(responseModel);
         if (![customResponseObject isKindOfClass:[NSDictionary class]]) return;
@@ -409,11 +406,10 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 }
 
 - (void)insertCurrentRequestToRequestTableList:(NSURLSessionDataTask *)sessionDataTask {
-    if (!(_globleRequestList && _globleTasksList && _globleSessionList) || !sessionDataTask)return ;
+    if (!(_globleRequestList && _globleTasksList) || !sessionDataTask)return ;
     
     if ([self.requestUrl isKindOfClass:[NSString class]]) {
         _globleRequestList[self.managerRequestKey] = self.finalParameters ?: @{};
-        _globleSessionList[self.managerRequestKey] = self.urlSession;
         
         if ([sessionDataTask isKindOfClass:[NSURLSessionDataTask class]]) {
             _globleTasksList[self.managerRequestKey] = sessionDataTask;
@@ -424,7 +420,6 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
 - (void)removeCompleteRequestFromGlobleRequestList {
     [_globleRequestList removeObjectForKey:self.managerRequestKey];
     [_globleTasksList removeObjectForKey:self.managerRequestKey];
-    [_globleSessionList removeObjectForKey:self.managerRequestKey];
 }
 
 + (void)cancelGlobleAllRequestMangerTask {
@@ -433,25 +428,14 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
             [task cancel];
         }
     }];
-    [_globleSessionList enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSURLSession * _Nonnull session, BOOL * _Nonnull stop) {
-        if ([session isKindOfClass:[NSURLSession class]]) {
-            [session finishTasksAndInvalidate];
-        }
-    }];
     [_globleRequestList removeAllObjects];
     [_globleTasksList removeAllObjects];
-    [_globleSessionList removeAllObjects];
 }
 
 + (void)cancelRequestsWithApiList:(NSArray<WXNetworkRequest *> *)requestList {
     if (!_globleRequestList || !_globleTasksList)return ;
     [requestList enumerateObjectsUsingBlock:^(WXNetworkRequest * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [_globleRequestList removeObjectForKey:obj.managerRequestKey];
-        
-        NSURLSession *session = _globleSessionList[obj.managerRequestKey];
-        if ([session isKindOfClass:[NSURLSession class]]) {
-            [session finishTasksAndInvalidate];
-        }
         NSURLSessionDataTask *task = _globleTasksList[obj.managerRequestKey];
         if ([task isKindOfClass:[NSURLSessionDataTask class]]) {
             [task cancel];
@@ -626,7 +610,6 @@ static NSMutableDictionary<NSString *, NSURLSession *> *         _globleSessionL
                 for (WXNetworkRequest *requestApi in weakSelf.requestArray) {
                     if (![requestApi.apiUniquelyIp isEqualToString:responseModel.apiUniquelyIp]) {
                         [requestApi.requestDataTask cancel];
-                        [requestApi.urlSession finishTasksAndInvalidate];
                     }
                 }
             }

@@ -237,6 +237,9 @@
 				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = maowangxin;
 				TargetAttributes = {
+					6003F589195388D20070C39A = {
+						DevelopmentTeam = P8FFNR95EQ;
+					};
 					6003F5AD195388D20070C39A = {
 						TestTargetID = 6003F589195388D20070C39A;
 					};
@@ -474,12 +477,13 @@
 			baseConfigurationReference = 5BC6C69B836254E6C71C452F /* Pods-WXNetworking_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = P8FFNR95EQ;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WXNetworking/WXNetworking-Prefix.pch";
 				INFOPLIST_FILE = "WXNetworking/WXNetworking-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.luke;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -492,12 +496,13 @@
 			baseConfigurationReference = 41A27962B3C659220583B112 /* Pods-WXNetworking_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = P8FFNR95EQ;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WXNetworking/WXNetworking-Prefix.pch";
 				INFOPLIST_FILE = "WXNetworking/WXNetworking-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.luke;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;

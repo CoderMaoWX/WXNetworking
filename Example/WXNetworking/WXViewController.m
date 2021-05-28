@@ -8,6 +8,7 @@
 
 #import "WXViewController.h"
 #import "WXNetworking.h"
+#import "AFURLResponseSerialization.h"
 
 @interface WXViewController ()<WXNetworkMulticenter, WXNetworkBatchDelegate, WXNetworkDelegate>
 @property (weak, nonatomic) IBOutlet UITextView *tipTextView;
@@ -19,20 +20,20 @@
     [super viewDidLoad];
     [WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog = NO;
     [WXNetworkConfig sharedInstance].showRequestLaoding = YES;
-    
-    [self RequestDemo2];
+    [self RequestDemo1];
 }
 
 - (IBAction)requestAction:(id)sender {
-    [self RequestDemo2];
+    [self RequestDemo3];
 }
 
-#pragma mark - 测试方法
+#pragma mark -======== 测试单个请求 ========
 
 - (void)RequestDemo1 {
     WXNetworkRequest *api = [[WXNetworkRequest alloc] init];
     api.requestType = WXNetworkRequestTypeGET;
     api.loadingSuperView = self.view;
+    api.parameters = nil;
     
 //    api.multicenterDelegate = self;
 //    api.retryCountWhenFailure = 2;
@@ -40,19 +41,30 @@
 //    api.responseModelCalss = [ZFResultaModel class];
 //    [api startRequestWithDelegate:self];
     
+    //http://123.207.32.32:8000/home/multidata
     api.requestUrl = @"http://www.tianqiapi.com/api?version=v9&appid=23035354&appsecret=8YvlPNrz";
-    api.parameters = nil;
+    api.responseSerializer = [AFJSONResponseSerializer serializer];//响应: text/json
+    
+    
+    //api.requestUrl = @"http://httpbin.org/links/20/1";
+    //api.responseSerializer = [AFHTTPResponseSerializer serializer];//响应: default request headers
     
     [api startRequestWithBlock:^(WXResponseModel *responseModel) {
         if (responseModel.isSuccess) {
-            self.tipTextView.text = [responseModel.responseDict description];
+            if ([responseModel.responseObject isKindOfClass:[NSData class]]) {
+                NSString *repStr = [[NSString alloc] initWithData:responseModel.responseObject encoding:(NSUTF8StringEncoding)];
+                self.tipTextView.text = repStr;// [responseModel.responseDict description];
+            } else {
+                self.tipTextView.text = [responseModel.responseDict description];
+            }
         } else {
             self.tipTextView.text = [responseModel.error description];
         }
     }];
 }
 
-/// 测试批量请求
+#pragma mark -======== 测试批量请求 ========
+
 - (void)RequestDemo2 {
     WXNetworkRequest *api1 = [[WXNetworkRequest alloc] init];
     api1.requestType = WXNetworkRequestTypeGET;
@@ -72,14 +84,13 @@
         @"appsecret": @"fTYv7v5E",
         @"city"     : @"南京",
     };
-    
     WXNetworkBatchRequest *batchRequest = [WXNetworkBatchRequest new];
     batchRequest.requestArray = @[api2, api1];
     
     ///1. 代理方法
     [batchRequest startRequestWithDelegate:self waitAllDone:YES];
     
-
+/**
     ///2. Block方法
     [batchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
         NSLog(@"批量请求回调1: %@", batchRequest.responseDataArray.firstObject);
@@ -89,8 +100,40 @@
 
     ///3. 类Block方法
     [WXNetworkBatchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
-        NSLog(@"批量请求回调3: %d", [batchRequest responseForRequest:api1]);
+        NSLog(@"批量请求回调3: %@", [batchRequest responseForRequest:api1]);
     } batchRequests:@[api1, api2] waitAllDone:YES];
+*/
+    
+}
+
+#pragma mark -======== 测试下载文件 ========
+
+- (void)RequestDemo3 {
+    WXNetworkRequest *api = [[WXNetworkRequest alloc] init];
+    api.requestType = WXNetworkRequestTypeGET;
+    api.loadingSuperView = self.view;
+    api.parameters = nil;
+    
+    //下载图片文件
+    api.requestUrl = @"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOphNu-kmAZqNhBTb63QZmSNGrgKLDWpsNSQ&usqp=CAU";
+    api.responseSerializer = [AFImageResponseSerializer serializer];//响应: image/png
+    
+    //下载Zip文件
+    //api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2135/2135_i_4_7_i_1.zip";
+    //api.responseSerializer = [AFHTTPResponseSerializer serializer];//响应: default request headers
+    
+    [api startRequestWithBlock:^(WXResponseModel *responseModel) {
+        if (responseModel.isSuccess) {
+            NSLog(@"下载图片成功: %@", responseModel.responseObject);
+            if ([responseModel.responseObject isKindOfClass:[UIImage class]]) {
+                self.tipTextView.hidden = YES;
+                self.view.backgroundColor = [UIColor colorWithPatternImage:responseModel.responseObject];
+            }
+        } else {
+            self.tipTextView.hidden = NO;
+            self.tipTextView.text = responseModel.error.domain;
+        }
+    }];
 }
 
 #pragma mark - <WXNetworkBatchDelegate>
