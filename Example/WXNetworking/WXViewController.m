@@ -118,6 +118,10 @@
     api.requestUrl = @"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOphNu-kmAZqNhBTb63QZmSNGrgKLDWpsNSQ&usqp=CAU";
     api.responseSerializer = [AFImageResponseSerializer serializer];//响应: image/png
     
+    //api.requestUrl = @"http://httpbin.org/image";
+    //api.requestHeaderDict = @{ @"accept" : @"image/png"};
+    //api.responseSerializer = [AFImageResponseSerializer serializer];//响应: image/png
+    
     //下载Zip文件
     //api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2135/2135_i_4_7_i_1.zip";
     //api.responseSerializer = [AFHTTPResponseSerializer serializer];//响应: default request headers
