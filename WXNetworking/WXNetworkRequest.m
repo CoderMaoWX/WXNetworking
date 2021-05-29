@@ -73,10 +73,10 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 @property (nonatomic, copy) NSString                *apiUniquelyIp;
 @property (nonatomic, assign) NSInteger             retryCount;
 @property (nonatomic, assign) double                requestDuration;
-@property (nonatomic, weak) id<WXNetworkDelegate>  responseDelegate;
+@property (nonatomic, weak) id<WXNetworkDelegate>   responseDelegate;
 @property (nonatomic, strong) NSString              *parmatersJsonString;
 @property (nonatomic, strong) NSString              *managerRequestKey;
-@property (nonatomic, copy) WXNetworkResponseBlock configResponseCallback;
+@property (nonatomic, copy) WXNetworkResponseBlock  configResponseCallback;
 @end
 
 @implementation WXNetworkRequest

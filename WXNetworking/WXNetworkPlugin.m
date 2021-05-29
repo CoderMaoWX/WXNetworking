@@ -197,7 +197,6 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
 @end
 
 #pragma mark -===========请求转圈弹框===========
-#define STATUSHEIGHT        [UIApplication sharedApplication].statusBarFrame.size.height
 #define kHUDLoadingViewTag  1234
 
 @implementation WXNetworkHUD
@@ -221,7 +220,8 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
     if (![loadingSuperView isKindOfClass:[UIView class]]) return;
     
     CGRect rect = loadingSuperView.bounds;
-    CGFloat statusBarAndNavBarHeight = STATUSHEIGHT+44;
+    CGFloat statusHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
+    CGFloat statusBarAndNavBarHeight = statusHeight + 44;
     CGFloat offsetHeight = statusBarAndNavBarHeight/2;
     
     UIWindow *window = nil;
@@ -258,7 +258,6 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
                                                                              options:0
                                                                              metrics:nil
                                                                                views:maskBgViewDic]];
-
     //自定义类动画View
     CGFloat customWidth = 72;
     Class loadingClass = [WXNetworkConfig sharedInstance].requestLaodingCalss;
