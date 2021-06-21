@@ -41,8 +41,8 @@
 //    api.responseModelCalss = [ZFResultaModel class];
 //    [api startRequestWithDelegate:self];
     
-    //http://123.207.32.32:8000/home/multidata
-    api.requestUrl = @"http://www.tianqiapi.com/api?version=v9&appid=23035354&appsecret=8YvlPNrz";
+    //测试电商页面数据
+    api.requestUrl = @"http://123.207.32.32:8000/home/multidata";
     api.responseSerializer = [AFJSONResponseSerializer serializer];//响应: text/json
     
     
@@ -115,7 +115,7 @@
     api.parameters = nil;
     
     //下载图片文件
-    api.requestUrl = @"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOphNu-kmAZqNhBTb63QZmSNGrgKLDWpsNSQ&usqp=CAU";
+    api.requestUrl = @"https://picsum.photos/200/300?random=1";
     api.responseSerializer = [AFImageResponseSerializer serializer];//响应: image/png
     
     //api.requestUrl = @"http://httpbin.org/image";
