@@ -10,6 +10,7 @@
 #import "WXNetworkPlugin.h"
 #import "WXNetworkConfig.h"
 #import <AFNetworking/AFNetworking.h>
+#import <objc/runtime.h>
 
 ///使用全局静态变量避免每次创建
 static AFHTTPSessionManager *_sessionManager;
@@ -137,12 +138,14 @@ static AFHTTPSessionManager *_sessionManager;
 }
 
 + (NSDictionary *)configRequestType {
-    return @{@(WXNetworkRequestTypePOST)   : @"POST",
-             @(WXNetworkRequestTypeGET)    : @"GET",
-             @(WXNetworkRequestTypeHEAD)   : @"HEAD",
-             @(WXNetworkRequestTypePUT)    : @"PUT",
-             @(WXNetworkRequestTypeDELETE) : @"DELETE",
-             @(WXNetworkRequestTypePATCH)  : @"PATCH" };
+    return @{
+        @(WXNetworkRequestTypePOST)   : @"POST",
+        @(WXNetworkRequestTypeGET)    : @"GET",
+        @(WXNetworkRequestTypeHEAD)   : @"HEAD",
+        @(WXNetworkRequestTypePUT)    : @"PUT",
+        @(WXNetworkRequestTypeDELETE) : @"DELETE",
+        @(WXNetworkRequestTypePATCH)  : @"PATCH",
+    };
 }
 
 #pragma mark - <ConfiguploadImage>
@@ -151,13 +154,15 @@ static AFHTTPSessionManager *_sessionManager;
     if (!_uploadConfigDataBlock) {
         __weak typeof(self) weakSelf = self;
         _uploadConfigDataBlock = ^(id<AFMultipartFormData> formData){
-            
+
             for (NSInteger i=0; i<weakSelf.uploadFileDataArr.count; i++) {
                 NSData *fileData = weakSelf.uploadFileDataArr[i];
                 if (![fileData isKindOfClass:[NSData class]]) continue;
+                
                 NSArray *typeArray = [WXNetworkPlugin typeForFileData:fileData];
                 NSString *name = [typeArray.firstObject stringByDeletingLastPathComponent];
                 NSString *fileName = [NSString stringWithFormat:@"%@-%d.%@", name, i, typeArray.lastObject];
+                
                 [formData appendPartWithFileData:fileData
                                             name:name
                                         fileName:fileName
@@ -169,3 +174,54 @@ static AFHTTPSessionManager *_sessionManager;
 }
 
 @end
+
+//=====================================禁止网络代理抓包=====================================
+
+@implementation NSURLSession (WXHttpProxy)
+
++(void)wx_swizzingMethod:(Class)cls orgSel:(SEL) orgSel swiSel:(SEL) swiSel{
+    Method orgMethod = class_getClassMethod(cls, orgSel);
+    Method swiMethod = class_getClassMethod(cls, swiSel);
+    method_exchangeImplementations(orgMethod, swiMethod);
+}
+
++(void)load{
+    [super load];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class class = [NSURLSession class];
+        [self wx_swizzingMethod:class
+                         orgSel:NSSelectorFromString(@"sessionWithConfiguration:")
+                         swiSel:NSSelectorFromString(@"wx_sessionWithConfiguration:")];
+        
+        [self wx_swizzingMethod:class
+                         orgSel:NSSelectorFromString(@"sessionWithConfiguration:delegate:delegateQueue:")
+                         swiSel:NSSelectorFromString(@"wx_sessionWithConfiguration:delegate:delegateQueue:")];
+    });
+}
+
++(NSURLSession *)wx_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration
+                                    delegate:(nullable id<NSURLSessionDelegate>)delegate
+                               delegateQueue:(nullable NSOperationQueue *)queue{
+    if (!configuration){
+        configuration = [[NSURLSessionConfiguration alloc] init];
+    }
+    BOOL isForbid = [WXNetworkConfig sharedInstance].forbidProxyCaught;
+    if(isForbid){
+        configuration.connectionProxyDictionary = @{};
+    }
+    return [self wx_sessionWithConfiguration:configuration
+                                    delegate:delegate
+                               delegateQueue:queue];
+}
+
++(NSURLSession *)wx_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration{
+    BOOL isForbid = [WXNetworkConfig sharedInstance].forbidProxyCaught;
+    if (configuration && isForbid){
+        configuration.connectionProxyDictionary = @{};
+    }
+    return [self wx_sessionWithConfiguration:configuration];
+}
+
+@end
+

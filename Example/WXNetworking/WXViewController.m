@@ -18,13 +18,14 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [WXNetworkConfig sharedInstance].forbidProxyCaught = YES;//是否禁止代理抓包
     [WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog = NO;
     [WXNetworkConfig sharedInstance].showRequestLaoding = YES;
     [self RequestDemo1];
 }
 
 - (IBAction)requestAction:(id)sender {
-    [self RequestDemo3];
+    [self RequestDemo2];
 }
 
 #pragma mark -======== 测试单个请求 ========

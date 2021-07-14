@@ -40,7 +40,10 @@
  */
 @property (nonatomic, weak) id<WXNetworkMulticenter> globleMulticenterDelegate;
 
-/** 是否打开多路径TCP服务，提供Wi-Fi和蜂窝之间的无缝切换，默认关闭 */
+/** 是否禁止所有的网络请求设置代理抓包，(默认不禁止) */
+@property (nonatomic, assign) BOOL          forbidProxyCaught;
+
+/** 是否打开多路径TCP服务，提供Wi-Fi和蜂窝之间的无缝切换，(默认关闭) */
 @property (nonatomic, assign) BOOL          openMultipathService;
 
 /** 请求HUD时的类名*/

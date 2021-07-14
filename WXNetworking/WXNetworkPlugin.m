@@ -32,8 +32,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
  @param request 请求对象
  */
 + (void)uploadNetworkResponseJson:(WXResponseModel *)responseModel
-                          request:(WXNetworkRequest *)request
-{
+                          request:(WXNetworkRequest *)request {
     if (responseModel.isCacheData) return;
     if ([WXNetworkConfig sharedInstance].isDistributionOnlineRelease) return;
     if (![WXNetworkConfig sharedInstance].uploadResponseJsonToLogSystem) return;
@@ -55,7 +54,6 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
             requestJson = appsFlyerDict;
         }
     }
-    
     NSDictionary *bundleInfo = [[NSBundle mainBundle] infoDictionary];
     NSString *appName =  bundleInfo[(__bridge NSString *)kCFBundleExecutableKey] ?: bundleInfo[(__bridge NSString *)kCFBundleIdentifierKey];
     NSString *version = bundleInfo[@"CFBundleShortVersionString"] ?: bundleInfo[(__bridge NSString *)kCFBundleVersionKey];
@@ -98,8 +96,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
  @return 日志头部字符串
  */
 + (NSString *)appendingPrintfLogHeader:(WXResponseModel *)responseModel
-                               request:(WXNetworkRequest *)request
-{
+                               request:(WXNetworkRequest *)request {
     BOOL isSuccess          = responseModel.isSuccess;
     BOOL isCacheData        = responseModel.isCacheData;
     NSString *requestJson   = [request valueForKey:@"parmatersJsonString"];
@@ -119,8 +116,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
  @param responseModel 响应模型
  @return 日志头部字符串
  */
-+ (NSString *)appendingPrintfLogFooter:(WXResponseModel *)responseModel
-{
++ (NSString *)appendingPrintfLogFooter:(WXResponseModel *)responseModel {
     if (responseModel.isSuccess) {
         NSString *responseJson  = [responseModel.responseDict description];
         if ([responseModel.responseDict isKindOfClass:[NSDictionary class]]) {
@@ -295,10 +291,20 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
                                                                             metrics:nil
                                                                               views:viewDic]];
         [maskBgView addConstraints:result];
-        [maskBgView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorBg attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:maskBgView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]];
+        [maskBgView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorBg
+                                                               attribute:NSLayoutAttributeCenterY
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:maskBgView
+                                                               attribute:NSLayoutAttributeCenterY
+                                                              multiplier:1
+                                                                constant:0]];
         //水平居中
-        [maskBgView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorBg attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:maskBgView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0]];
-        
+        [maskBgView addConstraint:[NSLayoutConstraint constraintWithItem:indicatorBg
+                                                               attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual
+                                                                  toItem:maskBgView
+                                                               attribute:NSLayoutAttributeCenterX
+                                                              multiplier:1
+                                                                constant:0]];
         UIActivityIndicatorView *loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
         [loadingView startAnimating];
         loadingView.center = CGPointMake(customWidth/2, customWidth/2);
