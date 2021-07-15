@@ -280,7 +280,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         case WXNetworkRequestDidCompletion: {
             [self judgeShowLoading:NO];
             [self removeCompleteRequestFromGlobleRequestList];
-            [self checkPostNotification:responseModel.responseCode];
+            [self checkPostNotification:responseModel];
             [WXNetworkPlugin uploadNetworkResponseJson:responseModel request:self];
             
             SEL selector = @selector(requestDidCompletion:responseModel:);
@@ -312,7 +312,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 
 #pragma mark - <Notification>
 
-- (void)checkPostNotification:(NSInteger)responseCode {
+- (void)checkPostNotification:(WXResponseModel *)responseModel {
     NSDictionary *notifyDict = [WXNetworkConfig sharedInstance].errorCodeNotifyDict;
     if (![notifyDict isKindOfClass:[NSDictionary class]]) return;
     
@@ -322,8 +322,8 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         NSNumber *notifyNumber = notifyDict[notifyName];
         if (![notifyNumber isKindOfClass:[NSNumber class]]) continue;
         
-        if (responseCode == notifyNumber.integerValue) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:notifyName object:nil];
+        if (responseModel.responseCode == notifyNumber.integerValue) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:notifyName object:responseModel];
         }
     }
 }

@@ -25,7 +25,7 @@
 }
 
 - (IBAction)requestAction:(id)sender {
-    [self RequestDemo2];
+    [self RequestDemo1];
 }
 
 #pragma mark -======== 测试单个请求 ========

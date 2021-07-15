@@ -179,13 +179,13 @@ static AFHTTPSessionManager *_sessionManager;
 
 @implementation NSURLSession (WXHttpProxy)
 
-+(void)wx_swizzingMethod:(Class)cls orgSel:(SEL) orgSel swiSel:(SEL) swiSel{
++(void)wx_swizzingMethod:(Class)cls orgSel:(SEL)orgSel swiSel:(SEL)swiSel {
     Method orgMethod = class_getClassMethod(cls, orgSel);
     Method swiMethod = class_getClassMethod(cls, swiSel);
     method_exchangeImplementations(orgMethod, swiMethod);
 }
 
-+(void)load{
++(void)load {
     [super load];
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -202,7 +202,7 @@ static AFHTTPSessionManager *_sessionManager;
 
 +(NSURLSession *)wx_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration
                                     delegate:(nullable id<NSURLSessionDelegate>)delegate
-                               delegateQueue:(nullable NSOperationQueue *)queue{
+                               delegateQueue:(nullable NSOperationQueue *)queue {
     if (!configuration){
         configuration = [[NSURLSessionConfiguration alloc] init];
     }
@@ -215,7 +215,7 @@ static AFHTTPSessionManager *_sessionManager;
                                delegateQueue:queue];
 }
 
-+(NSURLSession *)wx_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration{
++(NSURLSession *)wx_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration {
     BOOL isForbid = [WXNetworkConfig sharedInstance].forbidProxyCaught;
     if (configuration && isForbid){
         configuration.connectionProxyDictionary = @{};
