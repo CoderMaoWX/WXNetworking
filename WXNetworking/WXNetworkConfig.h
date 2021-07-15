@@ -40,7 +40,7 @@
  */
 @property (nonatomic, weak) id<WXNetworkMulticenter> globleMulticenterDelegate;
 
-/** 是否禁止所有的网络请求设置代理抓包，(默认不禁止) */
+/** 是否禁止所有的网络请求设置代理抓包 (警告: 一定要放在首次发请求之前设值, 默认不禁止) */
 @property (nonatomic, assign) BOOL          forbidProxyCaught;
 
 /** 是否打开多路径TCP服务，提供Wi-Fi和蜂窝之间的无缝切换，(默认关闭) */
