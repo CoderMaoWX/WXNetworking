@@ -26,7 +26,8 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 @property (nonatomic, assign, readwrite) BOOL              isSuccess;
 @property (nonatomic, assign, readwrite) BOOL              isCacheData;
 @property (nonatomic, strong, readwrite) id                responseCustomModel;
-@property (nonatomic, strong, readwrite) id                responseObject;//可能为UIimage/NSData/...
+//可能为NSDictionary/UIImage/NSData/...
+@property (nonatomic, strong, readwrite) id                responseObject;
 @property (nonatomic, strong, readwrite) NSDictionary      *responseDict;
 @property (nonatomic, assign, readwrite) CGFloat           responseDuration;
 @property (nonatomic, assign, readwrite) NSInteger         responseCode;
@@ -38,6 +39,10 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 @end
 
 @implementation WXResponseModel
+
+- (NSString *)description {
+    return [self yy_modelDescription];
+}
 
 - (void)configModel:(WXNetworkRequest *)requestApi
        responseDict:(NSDictionary *)responseDict
@@ -113,11 +118,12 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
  * @parm failureBlock 请求失败回调block
  */
 - (NSURLSessionDataTask *)startRequestWithBlock:(WXNetworkResponseBlock)responseBlock {
-    if ([self requestUrlIsIncorrect:self.requestUrl]) {
+    if (![self isValidRequestURL:self.requestUrl]) {
+        WXNetworkLog(@"\n❌❌❌无效的请求地址= %@", self.requestUrl);
         [self configResponseBlock:responseBlock responseObj:nil];
         return nil;
     }
-    if ([self checkCurrentTaskDoing]) {
+    if ([self checkCurrentTaskIsDoing]) {
         [self.class cancelRequestsWithApiList:@[self]];
     }
     void(^networkBlock)(id rsp) = ^(id responseObj) {
@@ -140,7 +146,10 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 - (void)configResponseBlock:(WXNetworkResponseBlock)responseBlock responseObj:(id)responseObj {
     if (responseObj) {
         if (self.retryCount < self.retryCountWhenFailure
-            && [responseObj isKindOfClass:[NSError class]]) {
+            && [responseObj isKindOfClass:[NSError class]] &&
+            ((NSError *)responseObj).code != -999 ) {
+            
+            // -999: is manual cancelled
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 self.retryCount ++;
                 [self startRequestWithBlock:responseBlock];
@@ -164,7 +173,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 
 - (WXResponseModel *)configResponseModel:(id)responseObj {
     
-    WXResponseModel *rspModel = [[WXResponseModel alloc] init];
+    WXResponseModel *rspModel  = [[WXResponseModel alloc] init];
     rspModel.responseDuration  = [self getCurrentTimestamp] - self.requestDuration;
     rspModel.apiUniquelyIp     = self.apiUniquelyIp;
     rspModel.responseObject    = responseObj;
@@ -179,10 +188,9 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         rspModel.responseMsg   = self.configFailMessage;
         rspModel.responseCode  = ((NSError *)responseObj).code;
         rspModel.error         = (NSError *)responseObj;
-        
     } else {
         NSDictionary *responseDict  = [self packagingResponseObj:responseObj responseModel:rspModel];
-        WXNetworkConfig *config    = [WXNetworkConfig sharedInstance];
+        WXNetworkConfig *config     = [WXNetworkConfig sharedInstance];
         NSString *responseCode      = [responseDict objectForKey:config.statusKey];
         rspModel.responseDict       = responseDict;
         rspModel.responseCode       = [responseCode integerValue];
@@ -209,7 +217,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 
 - (NSDictionary *)packagingResponseObj:(id)responseObj
                        responseModel:(WXResponseModel *)responseModel {
-    
+
     NSMutableDictionary *responseDcit = [NSMutableDictionary dictionary];
     WXNetworkConfig *config = [WXNetworkConfig sharedInstance];
     
@@ -330,8 +338,8 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 
 #pragma mark - <verifyUrl>
 
-- (BOOL)requestUrlIsIncorrect:(NSString *)requestUrl {
-    return (![requestUrl isKindOfClass:[NSString class]] || ![requestUrl hasPrefix:@"http"]);
+- (BOOL)isValidRequestURL:(NSString *)requestUrl {
+    return ([requestUrl isKindOfClass:[NSString class]] && [NSURL URLWithString:requestUrl]);
 }
 
 #pragma mark - <DealWithCache>
@@ -382,7 +390,6 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         YYDiskCache *cache = [WXNetworkConfig sharedInstance].networkDiskCache;
         [cache setObject:customResponseObject forKey:self.cacheKey withBlock:^{
         }];
-        
     } else if (self.autoCacheResponse) {
         if (![responseModel.responseObject isKindOfClass:[NSDictionary class]]) return;
         YYDiskCache *cache = [WXNetworkConfig sharedInstance].networkDiskCache;
@@ -399,27 +406,35 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     return _managerRequestKey;
 }
 
-- (BOOL)checkCurrentTaskDoing {
-    NSDictionary *parmaters = _globleRequestList[self.managerRequestKey];
+- (BOOL)checkCurrentTaskIsDoing {
+    NSString *requestKey = self.managerRequestKey;
+    NSDictionary *parmaters = _globleRequestList[requestKey];
     if (![parmaters isKindOfClass:[NSDictionary class]]) return NO;
+    
+    if ([_globleRequestList.allKeys containsObject:requestKey]
+        && parmaters.count == 0 && !self.finalParameters) {
+        return YES;
+    }
     return [parmaters isEqualToDictionary:self.finalParameters];
 }
 
 - (void)insertCurrentRequestToRequestTableList:(NSURLSessionDataTask *)sessionDataTask {
     if (!(_globleRequestList && _globleTasksList) || !sessionDataTask)return ;
     
+    NSString *requestKey = self.managerRequestKey;
     if ([self.requestUrl isKindOfClass:[NSString class]]) {
-        _globleRequestList[self.managerRequestKey] = self.finalParameters ?: @{};
+        _globleRequestList[requestKey] = self.finalParameters ?: @{};
         
         if ([sessionDataTask isKindOfClass:[NSURLSessionDataTask class]]) {
-            _globleTasksList[self.managerRequestKey] = sessionDataTask;
+            _globleTasksList[requestKey] = sessionDataTask;
         }
     }
 }
 
 - (void)removeCompleteRequestFromGlobleRequestList {
-    [_globleRequestList removeObjectForKey:self.managerRequestKey];
-    [_globleTasksList removeObjectForKey:self.managerRequestKey];
+    NSString *requestKey = self.managerRequestKey;
+    [_globleRequestList removeObjectForKey:requestKey];
+    [_globleTasksList removeObjectForKey:requestKey];
 }
 
 + (void)cancelGlobleAllRequestMangerTask {
@@ -479,7 +494,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         }
         return _parmatersJsonString;
     }
-    return @"";//self.apiUniquelyIp;
+    return @"";
 }
 
 @end

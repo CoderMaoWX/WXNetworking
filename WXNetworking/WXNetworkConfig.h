@@ -40,7 +40,7 @@
  */
 @property (nonatomic, weak) id<WXNetworkMulticenter> globleMulticenterDelegate;
 
-/** 是否禁止所有的网络请求设置代理抓包 (警告: 一定要放在首次发请求之前设值, 默认不禁止) */
+/** 是否禁止所有的网络请求设置代理抓包 (警告: 一定要放在首次发请求之前设值(例如+load方法中), 默认不禁止) */
 @property (nonatomic, assign) BOOL          forbidProxyCaught;
 
 /** 是否打开多路径TCP服务，提供Wi-Fi和蜂窝之间的无缝切换，(默认关闭) */
@@ -70,7 +70,10 @@
 /** 是否关闭打印: 接口响应日志，默认关闭 */
 @property (nonatomic, assign) BOOL          closeUrlResponsePrintfLog;
 
-/** 是否关闭打印: 统计上传日志，默认关闭 */
+/**
+ * 是否关闭打印: 统计上传日志，默认关闭
+ * (如果是统计日志发出的请求则请在请求参数中带有key: KWXUploadAppsFlyerStatisticsKey)
+ * */
 @property (nonatomic, assign) BOOL          closeStatisticsPrintfLog;
 
 /*

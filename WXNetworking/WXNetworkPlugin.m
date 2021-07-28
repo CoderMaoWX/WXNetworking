@@ -104,7 +104,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
     NSDictionary *requestHeadersInfo = request.requestDataTask.originalRequest.allHTTPHeaderFields;
     NSString *successFlag   = isCacheData ? @"❤️❤️❤️" : (isSuccess ? @"✅✅✅" : @"❌❌❌");
     NSString *statusString  = isCacheData ? @"缓存数据成功" : (isSuccess ? @"成功" : @"失败");
-    NSString *logBody = [NSString stringWithFormat:@"\n%@请求接口地址 %@= %@\n请求参数json=\n%@\n\n请求头信息: %@\n\n网络数据%@返回=\n",
+    NSString *logBody = [NSString stringWithFormat:@"\n%@请求接口地址%@= %@\n请求参数json=\n%@\n\n请求头信息: %@\n\n网络数据%@返回=\n",
                          successFlag, hostTitle, request.requestUrl,
                          requestJson, requestHeadersInfo, statusString];
     return logBody;
@@ -264,7 +264,6 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
         UIView *loadingView = [[loadingClass alloc] initWithFrame:CGRectMake(0, 0, customWidth, customWidth)];
         loadingView.center = CGPointMake(maskBgView.frame.size.width/2, maskBgView.frame.size.height/2 + offsetHeight);
         [maskBgView addSubview:loadingView];
-        
     } else {
         //转圈蒙层
 //        CGFloat x = (maskBgView.bounds.size.width - customWidth) /2;

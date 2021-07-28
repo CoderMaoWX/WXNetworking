@@ -12,6 +12,7 @@
 
 @interface WXViewController ()<WXNetworkMulticenter, WXNetworkBatchDelegate, WXNetworkDelegate>
 @property (weak, nonatomic) IBOutlet UITextView *tipTextView;
+@property (nonatomic, strong) WXNetworkRequest *testApi;
 @end
 
 @implementation WXViewController
@@ -21,11 +22,20 @@
     [WXNetworkConfig sharedInstance].forbidProxyCaught = YES;//是否禁止代理抓包
     [WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog = NO;
     [WXNetworkConfig sharedInstance].showRequestLaoding = YES;
-    [self RequestDemo1];
+//    [self RequestDemo1];
+    [self rightItemAction:nil];
 }
 
-- (IBAction)requestAction:(id)sender {
-    [self RequestDemo1];
+- (IBAction)leftItemAction:(UIBarButtonItem *)sender {
+    if (self.testApi.requestDataTask) {
+        [self.testApi.requestDataTask cancel];
+    }
+}
+
+- (IBAction)rightItemAction:(UIBarButtonItem *)sender {
+    for (NSInteger i=0; i<200; i++) {
+        [self RequestDemo1];
+    }
 }
 
 #pragma mark -======== 测试单个请求 ========
@@ -46,6 +56,17 @@
     api.requestUrl = @"http://123.207.32.32:8000/home/multidata";
     api.responseSerializer = [AFJSONResponseSerializer serializer];//响应: text/json
     
+//    api.timeOut = 3;
+//    api.retryCountWhenFailure = 2;
+//    api.requestUrl = @"http://httpbin.org/delay/10";
+    api.requestUrl = @"http://httpbin.org/get";
+    api.parameters = @{
+        @"version"  : @"v6",
+        @"appid"    : @"21375891",
+        @"appsecret": @"fTYv7v5E",
+        @"city"     : @"南京",
+    };
+    self.testApi = api;
     
     //api.requestUrl = @"http://httpbin.org/links/20/1";
     //api.responseSerializer = [AFHTTPResponseSerializer serializer];//响应: default request headers
