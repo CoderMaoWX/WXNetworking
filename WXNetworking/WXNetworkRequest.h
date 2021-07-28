@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param responseModel 响应对象
  */
 - (void)wxResponseWithRequest:(WXNetworkRequest *)request
-                 responseModel:(WXResponseModel *)responseModel;
+                responseModel:(WXResponseModel *)responseModel;
 @end
 
 

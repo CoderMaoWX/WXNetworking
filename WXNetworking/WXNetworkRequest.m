@@ -26,8 +26,7 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 @property (nonatomic, assign, readwrite) BOOL              isSuccess;
 @property (nonatomic, assign, readwrite) BOOL              isCacheData;
 @property (nonatomic, strong, readwrite) id                responseCustomModel;
-//可能为NSDictionary/UIImage/NSData/...
-@property (nonatomic, strong, readwrite) id                responseObject;
+@property (nonatomic, strong, readwrite) id                responseObject;//responseObject: NSDictionary/UIImage/NSData/...
 @property (nonatomic, strong, readwrite) NSDictionary      *responseDict;
 @property (nonatomic, assign, readwrite) CGFloat           responseDuration;
 @property (nonatomic, assign, readwrite) NSInteger         responseCode;

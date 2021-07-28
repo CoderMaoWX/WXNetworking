@@ -22,8 +22,7 @@
     [WXNetworkConfig sharedInstance].forbidProxyCaught = YES;//是否禁止代理抓包
     [WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog = NO;
     [WXNetworkConfig sharedInstance].showRequestLaoding = YES;
-//    [self RequestDemo1];
-    [self rightItemAction:nil];
+    [self RequestDemo1];
 }
 
 - (IBAction)leftItemAction:(UIBarButtonItem *)sender {
@@ -33,9 +32,7 @@
 }
 
 - (IBAction)rightItemAction:(UIBarButtonItem *)sender {
-    for (NSInteger i=0; i<200; i++) {
-        [self RequestDemo1];
-    }
+    [self RequestDemo2];
 }
 
 #pragma mark -======== 测试单个请求 ========
@@ -55,17 +52,6 @@
     //测试电商页面数据
     api.requestUrl = @"http://123.207.32.32:8000/home/multidata";
     api.responseSerializer = [AFJSONResponseSerializer serializer];//响应: text/json
-    
-//    api.timeOut = 3;
-//    api.retryCountWhenFailure = 2;
-//    api.requestUrl = @"http://httpbin.org/delay/10";
-    api.requestUrl = @"http://httpbin.org/get";
-    api.parameters = @{
-        @"version"  : @"v6",
-        @"appid"    : @"21375891",
-        @"appsecret": @"fTYv7v5E",
-        @"city"     : @"南京",
-    };
     self.testApi = api;
     
     //api.requestUrl = @"http://httpbin.org/links/20/1";
@@ -190,7 +176,7 @@
  * @param responseModel 请求对象
  */
 - (void)requestWillStop:(WXNetworkRequest *)request responseModel:(WXResponseModel *)responseModel {
-    NSLog(@"网络请求将要停止回调===%@", [responseModel description]);
+    NSLog(@"网络请求将要停止回调===%@", responseModel);
     self.tipTextView.text = responseModel.responseDict.description;
 }
 
@@ -199,7 +185,7 @@
  * @param responseModel 请求对象
  */
 - (void)requestDidCompletion:(WXNetworkRequest *)request responseModel:(WXResponseModel *)responseModel {
-    NSLog(@"网络请求已经停止回调===%@", [responseModel description]);
+    NSLog(@"网络请求已经停止回调===%@", responseModel);
     self.tipTextView.text = responseModel.responseDict.description;
 }
 
