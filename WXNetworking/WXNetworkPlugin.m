@@ -176,7 +176,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
  @param string 需要MD5的字符串
  @return MD5后的字符串
  */
-+ (NSString *)WXMD5String:(NSString *)string {
++ (NSString *)MD5String:(NSString *)string {
     if (!string) return nil;
     NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
     unsigned char result[CC_MD5_DIGEST_LENGTH];

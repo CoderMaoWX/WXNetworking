@@ -9,7 +9,6 @@
 #import "WXBaseRequest.h"
 #import "WXNetworkPlugin.h"
 #import "WXNetworkConfig.h"
-#import <AFNetworking/AFNetworking.h>
 #import <objc/runtime.h>
 
 ///使用全局静态变量避免每次创建

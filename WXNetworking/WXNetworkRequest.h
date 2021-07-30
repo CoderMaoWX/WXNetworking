@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WXResponseModel : NSObject
+@interface WXResponseModel : NSObject<NSCopying, NSCoding>
 @property (nonatomic, assign, readonly) BOOL                        isSuccess;
 @property (nonatomic, assign, readonly) BOOL                        isCacheData;
 @property (nonatomic, assign, readonly) CGFloat                     responseDuration;

@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AFNetworking.h"
+#import <AFNetworking/AFNetworking.h>
+
 @class WXResponseModel, WXNetworkBatchRequest;
 
 ///  HTTP Request method

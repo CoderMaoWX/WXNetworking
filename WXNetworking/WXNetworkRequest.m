@@ -43,6 +43,24 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
     return [self yy_modelDescription];
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+    return [self yy_modelCopy];
+}
+
+- (id)mutableCopyWithZone:(NSZone *)zone{
+    return [self yy_modelCopy];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    [self yy_modelEncodeWithCoder:aCoder];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super init];
+    return [self yy_modelInitWithCoder:aDecoder];
+}
+
+/// 解析对应的数据模型
 - (void)configModel:(WXNetworkRequest *)requestApi
        responseDict:(NSDictionary *)responseDict
 {
@@ -354,7 +372,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 - (NSString *)cacheKey {
     if (self.cacheResponseBlock || self.autoCacheResponse) {
         if (!_cacheKey) {
-            _cacheKey = [WXNetworkPlugin WXMD5String:self.managerRequestKey];
+            _cacheKey = [WXNetworkPlugin MD5String:self.managerRequestKey];
         }
         return _cacheKey;
     }

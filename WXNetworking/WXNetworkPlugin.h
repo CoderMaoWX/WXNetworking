@@ -38,7 +38,6 @@ FOUNDATION_EXPORT NSString *const KWXNetworkBatchRequestDeallocDesc;
 + (void)uploadNetworkResponseJson:(WXResponseModel *)responseModel
                           request:(WXNetworkRequest *)request;
 
-
 /**
  打印日志头部
 
@@ -57,7 +56,6 @@ FOUNDATION_EXPORT NSString *const KWXNetworkBatchRequestDeallocDesc;
  */
 + (NSString *)appendingPrintfLogFooter:(WXResponseModel *)responseModel;
 
-
 /**
  * 上传时获取图片类型
 
@@ -72,7 +70,7 @@ FOUNDATION_EXPORT NSString *const KWXNetworkBatchRequestDeallocDesc;
  @param string 需要MD5的字符串
  @return MD5后的字符串
  */
-+ (NSString *)WXMD5String:(NSString *)string;
++ (NSString *)MD5String:(NSString *)string;
 
 @end
 
