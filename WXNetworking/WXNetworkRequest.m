@@ -286,11 +286,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         }
             break;
         case WXNetworkRequestWillStop: {
-            if (![WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog) {
-                NSString *logHeader = [WXNetworkPlugin appendingPrintfLogHeader:responseModel request:self];
-                NSString *logFooter = [WXNetworkPlugin appendingPrintfLogFooter:responseModel];
-                WXNetworkLog(@"%@", [NSString stringWithFormat:@"%@%@", logHeader, logFooter]);
-            }
+            [self printfResponseLog:responseModel];
             SEL selector = @selector(requestWillStop:responseModel:);
             if ([delegate respondsToSelector:selector]) {
                 [delegate requestWillStop:self responseModel:responseModel];
@@ -318,7 +314,9 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
                 }
             }
             // save as much as possible at the end
-            if (!responseModel.isCacheData) {
+            if (responseModel.isCacheData) {
+                [self printfResponseLog:responseModel];
+            } else {
                 [self saveResponseObjToCache:responseModel];
             }
         }
@@ -326,6 +324,15 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         default:
             break;
     }
+}
+
+- (void)printfResponseLog:(WXResponseModel *)responseModel {
+    if ([WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog) return;
+#if DEBUG
+    NSString *logHeader = [WXNetworkPlugin appendingPrintfLogHeader:responseModel request:self];
+    NSString *logFooter = [WXNetworkPlugin appendingPrintfLogFooter:responseModel];
+    WXNetworkLog(@"%@", [NSString stringWithFormat:@"%@%@", logHeader, logFooter]);
+#endif
 }
 
 - (NSString *)apiUniquelyIp {
