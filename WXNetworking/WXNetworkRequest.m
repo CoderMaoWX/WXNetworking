@@ -545,10 +545,10 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 @property (nonatomic, assign) NSInteger                 requestCount;
 @property(nonatomic, assign, readwrite) BOOL            isAllSuccess;
 @property (nonatomic, assign) BOOL                      hasMarkBatchFailure;
-@property (nonatomic, assign) BOOL                      waitAllSuccess;
+@property (nonatomic, assign) BOOL                      waitAllDone;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, WXResponseModel *> *responseInfoDict;
 @property (nonatomic, strong) WXNetworkBatchRequest     *batchRequest;
-@property (nonatomic, strong) NSArray                   *responseDataArray;
+@property (nonatomic, strong, readwrite) NSMutableArray *responseDataArray;
 @end
 
 @implementation WXNetworkBatchRequest
@@ -616,8 +616,12 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     }
     self.batchRequest = self;
     self.responseBatchBlock = responseBlock;
-    self.waitAllSuccess = waitAllDone;
+    self.waitAllDone = waitAllDone;
     self.responseBatchDelegate = nil;
+    self.requestCount = 0;
+    self.isAllSuccess = NO;
+    self.hasMarkBatchFailure = NO;
+    [self.responseDataArray removeAllObjects];
     for (WXNetworkRequest *requestApi in self.requestArray) {
         [requestApi startRequestWithBlock:self.configBatchDelegateCallback];
     }
@@ -641,8 +645,12 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     }
     self.batchRequest = self;
     self.responseBatchDelegate = responseDelegate;
-    self.waitAllSuccess = waitAllDone;
+    self.waitAllDone = waitAllDone;
     self.responseBatchBlock = nil;
+    [self.responseDataArray removeAllObjects];
+    self.requestCount = 0;
+    self.isAllSuccess = NO;
+    self.hasMarkBatchFailure = NO;
     for (WXNetworkRequest *serverApi in self.requestArray) {
         serverApi.configResponseCallback = self.configBatchDelegateCallback;
         [serverApi startRequestWithDelegate:responseDelegate];
@@ -653,16 +661,16 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     if (!_configBatchDelegateCallback) {
         __weak typeof(self) weakSelf = self;
         _configBatchDelegateCallback = ^(WXResponseModel *responseModel) {
-            if (!responseModel.isCacheData) {
-                [weakSelf dealwithResponseHandle:responseModel];
-            }
-            if (!responseModel.isSuccess && !weakSelf.waitAllSuccess && !weakSelf.hasMarkBatchFailure) {
+            if (!responseModel.isSuccess) {
                 weakSelf.hasMarkBatchFailure = YES;
-                for (WXNetworkRequest *requestApi in weakSelf.requestArray) {
-                    if (![requestApi.apiUniquelyIp isEqualToString:responseModel.apiUniquelyIp]) {
-                        [requestApi.requestDataTask cancel];
-                    }
-                }
+            }
+            if (weakSelf.waitAllDone) {
+                [weakSelf dealwithResponseHandle:responseModel];
+            } else {
+                weakSelf.isAllSuccess = !weakSelf.hasMarkBatchFailure;
+                [weakSelf.responseDataArray addObject:responseModel];
+                // 请求最终回调
+                [weakSelf callbackResponseData];
             }
         };
     }
@@ -671,7 +679,9 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 
 - (void)dealwithResponseHandle:(WXResponseModel *)responseModel {
     @synchronized (self) {
-        self.requestCount--;
+        if (!responseModel.isCacheData) {
+            self.requestCount--;
+        }
         self.responseInfoDict[responseModel.apiUniquelyIp] = responseModel;
         
         if (self.requestCount <= 0) {
@@ -684,18 +694,23 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
                     [responseArray addObject:responseObj];
                 }
             }
-            // 请求最终回调
             self.responseDataArray = responseArray;
-            if (self.responseBatchBlock) {
-                self.responseBatchBlock(self);
-                
-            } else if (self.responseBatchDelegate &&
-                       [self.responseBatchDelegate respondsToSelector:@selector(wxBatchResponseWithRequest:)]) {
-                [self.responseBatchDelegate wxBatchResponseWithRequest:self];
-            }
-            self.batchRequest = nil;
+            // 请求最终回调
+            [self callbackResponseData];
         }
     }
+}
+
+///请求最终回调
+- (void)callbackResponseData {
+    if (self.responseBatchBlock) {
+        self.responseBatchBlock(self);
+        
+    } else if (self.responseBatchDelegate &&
+               [self.responseBatchDelegate respondsToSelector:@selector(wxBatchResponseWithRequest:)]) {
+        [self.responseBatchDelegate wxBatchResponseWithRequest:self];
+    }
+    self.batchRequest = nil;
 }
 
 - (NSMutableDictionary *)responseInfoDict {
@@ -703,6 +718,13 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         _responseInfoDict = [NSMutableDictionary dictionary];
     }
     return _responseInfoDict;
+}
+
+- (NSMutableArray<WXResponseModel *> *)responseDataArray {
+    if (!_responseDataArray) {
+        _responseDataArray = [NSMutableArray array];
+    }
+    return _responseDataArray;
 }
 
 @end

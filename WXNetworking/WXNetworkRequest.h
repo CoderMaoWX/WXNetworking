@@ -138,11 +138,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** 全部请求对象, 响应时按添加顺序返回 */
 @property (nonatomic, strong) NSArray<WXNetworkRequest *> *requestArray;
 
-/** 全部请求是否都请求完成了 */
-@property(nonatomic, assign, readonly) BOOL isAllDone;
+/** 全部请求是否都成功了 */
+@property(nonatomic, assign, readonly) BOOL isAllSuccess;
 
 /** 全部响应数据,按请求Api的添加顺序返回 */
-@property (nonatomic, strong, readonly) NSArray<WXResponseModel *> *responseDataArray;
+@property (nonatomic, strong, readonly) NSMutableArray<WXResponseModel *> *responseDataArray;
 
 /** 根据指定的请求获取响应数据 */
 - (WXResponseModel *)responseForRequest:(WXNetworkRequest *)request;
