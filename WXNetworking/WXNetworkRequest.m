@@ -153,7 +153,11 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     NSURLSessionDataTask *task = [self baseRequestBlock:networkBlock failureBlock:networkBlock];
     [self insertCurrentRequestToRequestTableList:task];
     if (![WXNetworkConfig sharedInstance].closeUrlResponsePrintfLog) {
-        WXNetworkLog(@"\n👉👉👉页面已发出请求= %@", self.requestUrl);
+        if (self.retryCount == 0) {
+            WXNetworkLog(@"\n👉👉👉已发出网络请求= %@", self.requestUrl);
+        } else {
+            WXNetworkLog(@"\n👉👉👉请求失败,第 %@ 次尝试重新请求=", self.requestUrl);
+        }
     }
     return task;
 }
@@ -161,35 +165,31 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 #pragma mark - <DealWithResponse>
 
 - (void)configResponseBlock:(WXNetworkResponseBlock)responseBlock responseObj:(id)responseObj {
-    if (responseObj) {
-        if (self.retryCount < self.retryCountWhenFailure
-            && [responseObj isKindOfClass:[NSError class]] &&
-            ((NSError *)responseObj).code != -999 ) {
-            
-            // -999: is manual cancelled
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                self.retryCount ++;
-                [self startRequestWithBlock:responseBlock];
-            });
-        } else {
-            WXResponseModel *responseModel = [self configResponseModel:responseObj];
-            if (responseBlock) {
-                responseBlock(responseModel);
-            }
-            [self handleMulticenter:WXNetworkRequestDidCompletion responseModel:responseModel];
-        }
-    } else {
-        NSError *error = [NSError errorWithDomain:self.configFailMessage code:-444 userInfo:nil];
-        WXResponseModel *responseModel = [self configResponseModel:error];
+    
+    void (^handleResponseFn)(id responseObj) = ^(id responseObj) {
+        WXResponseModel *responseModel = [self configResponseModel:responseObj];
         if (responseBlock) {
             responseBlock(responseModel);
         }
         [self handleMulticenter:WXNetworkRequestDidCompletion responseModel:responseModel];
+    };
+    
+    if (self.retryCount < self.retryCountWhenFailure
+        && [responseObj isKindOfClass:[NSError class]] &&
+        ((NSError *)responseObj).code != -999 ) {
+        
+        // -999: is manual cancelled
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            self.retryCount ++;
+            handleResponseFn(responseObj);
+            [self startRequestWithBlock:responseBlock];
+        });
+    } else {
+        handleResponseFn(responseObj);
     }
 }
 
 - (WXResponseModel *)configResponseModel:(id)responseObj {
-    
     WXResponseModel *rspModel  = [[WXResponseModel alloc] init];
     rspModel.responseDuration  = [self getCurrentTimestamp] - self.requestDuration;
     rspModel.apiUniquelyIp     = self.apiUniquelyIp;
@@ -199,12 +199,15 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     if ([self.requestDataTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
         rspModel.urlResponse   = (NSHTTPURLResponse *)(self.requestDataTask.response);
     }
-    if ([responseObj isKindOfClass:[NSError class]]) {
-        rspModel.isSuccess     = NO;
-        rspModel.isCacheData   = NO;
+    
+    if (!responseObj || [responseObj isKindOfClass:[NSError class]] ) {
+        NSString *domain = responseObj ? ((NSError *)responseObj).domain : self.configFailMessage;
+        NSInteger code = responseObj ? ((NSError *)responseObj).code : -444;
+        NSError *rspError = [NSError errorWithDomain:domain code:code userInfo:nil];
+        
         rspModel.responseMsg   = self.configFailMessage;
-        rspModel.responseCode  = ((NSError *)responseObj).code;
-        rspModel.error         = (NSError *)responseObj;
+        rspModel.responseCode  = code;
+        rspModel.error         = rspError;
     } else {
         NSDictionary *responseDict  = [self packagingResponseObj:responseObj responseModel:rspModel];
         WXNetworkConfig *config     = [WXNetworkConfig sharedInstance];
@@ -249,13 +252,22 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         if ([rspData isKindOfClass:[NSData class]]) {
             responseModel.responseObject = rspData;
         }
-    } else {
-        //注意:不能直接赋值responseObj, 因为插件库那边会dataWithJSONObject打印会崩溃
-        //responseDcit[config.customModelKey] = [responseObj description];
-    }
-    // 只要返回为非Error就包装一个公共的key, 防止页面当失败解析
-    if (![responseDcit valueForKey:config.statusKey]) {
-        responseDcit[config.statusKey] = [NSString stringWithFormat:@"%@", config.statusCode];
+    } else if ([responseObj isKindOfClass:[NSString class]]) {
+        NSData *data = [(NSString *)responseObj dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *parseError = nil; BOOL hasFail = NO;
+        if ([data isKindOfClass:[NSData class]]) {
+            NSDictionary *toDict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&parseError];
+            if ([toDict isKindOfClass:[NSDictionary class]]) {
+                [responseDcit addEntriesFromDictionary:toDict];
+            } else {
+                hasFail = YES;
+            }
+        }
+        if (parseError || hasFail) {
+            responseDcit[@"response"] = responseObj;
+        }
+    } else if (responseObj != nil) {
+        responseDcit[@"response"] = responseObj;
     }
     return responseDcit;
 }
