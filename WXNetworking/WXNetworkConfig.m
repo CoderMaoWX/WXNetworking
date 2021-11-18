@@ -42,48 +42,6 @@ static WXNetworkConfig *_instance;
     return _instance;
 }
 
-#pragma mark -===========请求库配置类设置默认值===========
-
-/**
- * 设置默认的请求成功状态标识key
- */
-- (NSString *)statusKey {
-    if (!_statusKey) {
-        _statusKey = @"status";
-    }
-    return _statusKey;
-}
-
-/**
- * 设置默认的请求成功状态码
- */
-- (NSString *)statusCode {
-    if (!_statusCode) {
-        _statusCode = @"200";
-    }
-    return _statusCode;
-}
-
-/**
- * 需要单独解析Model时的key,(可选)
- */
-- (NSString *)customModelKey {
-//    if (!_customModelKey) {
-//        _customModelKey = @"result";
-//    }
-    return _customModelKey;
-}
-
-/**
- * 设置默认的请求提示标识key
- */
-- (NSString *)messageKey {
-    if (!_messageKey) {
-        _messageKey = @"msg";
-    }
-    return _messageKey;
-}
-
 - (YYDiskCache *)networkDiskCache {
     if (!_networkDiskCache) {
         NSString *userDocument = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];

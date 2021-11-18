@@ -12,13 +12,13 @@
 @class WXResponseModel, WXNetworkBatchRequest;
 
 ///  HTTP Request method
-typedef NS_ENUM(NSInteger, WXNetworkRequestType) {
-    WXNetworkRequestTypePOST = 0,
-    WXNetworkRequestTypeGET,
-    WXNetworkRequestTypeHEAD,
-    WXNetworkRequestTypePUT,
-    WXNetworkRequestTypeDELETE,
-    WXNetworkRequestTypePATCH,
+typedef NS_ENUM(NSInteger, WXRequestMethod) {
+    WXRequestMethod_POST = 0,
+    WXRequestMethod_GET,
+    WXRequestMethod_HEAD,
+    WXRequestMethod_PUT,
+    WXRequestMethod_DELETE,
+    WXRequestMethod_PATCH,
 };
 
 typedef void(^WXNetworkResponseBlock) (WXResponseModel *responseModel);
@@ -38,13 +38,14 @@ typedef void(^WXNetworkUploadDataBlock) (id<AFMultipartFormData> formData);
  @return 网络底层最终的请求参数
  */
 - (NSDictionary *)parametersWillTransformFromOriginParamete:(NSDictionary *)parameters;
+
 @end
 
 
 @interface WXBaseRequest : NSObject
 
 /** 请求类型 */
-@property (nonatomic, assign) WXNetworkRequestType     requestType;
+@property (nonatomic, assign) WXRequestMethod          requestType;
 
 /** 请求地址 */
 @property (nonatomic, copy)   NSString                 *requestUrl;
@@ -84,7 +85,6 @@ typedef void(^WXNetworkUploadDataBlock) (id<AFMultipartFormData> formData);
 
 /** 请求Session对象 */
 @property (nonatomic, strong, readonly) NSURLSession   *urlSession;
-
 
 /*
  * 网络请求方法 (不做任何额外处理的原始AFNetwork请求，页面上不建议直接用，请使用子类请求方法)

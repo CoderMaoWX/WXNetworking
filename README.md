@@ -34,9 +34,6 @@ pod 'WXNetworking'
 /** 需要解析Model时的全局key,(可选) */
 @property (nonatomic, copy) NSString        *customModelKey;
 
-/** 请求失败时的默认提示 */
-@property (nonatomic, copy) NSString        *requestFailDefaultMessage;
-
 /** 全局网络请求拦截类 */
 @property (nonatomic, strong) Class         urlSessionProtocolClasses;
 
@@ -92,7 +89,7 @@ pod 'WXNetworking'
 @interface WXBaseRequest : NSObject
 
 /** 请求类型 */
-@property (nonatomic, assign) WXNetworkRequestType     requestType;
+@property (nonatomic, assign) WXRequestMethod           requestType;
 
 /** 请求地址 */
 @property (nonatomic, copy)   NSString                  *requestUrl;
@@ -144,7 +141,7 @@ pod 'WXNetworking'
 
 ```
 WXNetworkRequest *api = [[WXNetworkRequest alloc] init];
-api.requestType = WXNetworkRequestTypeGET;
+api.requestType = WXRequestMethod_GET;
 api.loadingSuperView = self.view;
     
 //    api.multicenterDelegate = self;
@@ -171,14 +168,14 @@ api.loadingSuperView = self.view;
 
 ```
 WXNetworkRequest *api1 = [[WXNetworkRequest alloc] init];
-api1.requestType = WXNetworkRequestTypeGET;
+api1.requestType = WXRequestMethod_GET;
 api1.loadingSuperView = self.view;
 api1.multicenterDelegate = self;
 api1.requestUrl = @"http://wthrcdn.etouch.cn/weather_mini";
 api1.parameters = @{@"city" : @"北京"};
 
 WXNetworkRequest *api2 = [[WXNetworkRequest alloc] init];
-api2.requestType = WXNetworkRequestTypeGET;
+api2.requestType = WXRequestMethod_GET;
 api2.loadingSuperView = self.view;
 api2.multicenterDelegate = self;
 api2.requestUrl = @"https://www.tianqiapi.com/api";

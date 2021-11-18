@@ -14,16 +14,17 @@
 
 @interface WXNetworkConfig : NSObject
 
-/** 各站自定义请求成功标识 */
-@property (nonatomic, copy) NSString        *statusKey;
-@property (nonatomic, copy) NSString        *statusCode;
-@property (nonatomic, copy) NSString        *messageKey;
+/**
+ * 约定全局请求成功映射: key/value
+ * (key可以是KeyPath模式进行匹配 如: (key: "data.status", value: "200")
+ */
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *successStatusMap;
 
-/** 需要解析Model时的全局key,(可选) */
-@property (nonatomic, copy) NSString        *customModelKey;
-
-/** 请求失败时的默认提示 */
-@property (nonatomic, copy) NSString        *requestFailDefaultMessage;
+/**
+ * 约定全局请求的提示tipKey, 返回值会保存在: WXResponseModel.responseMsg中
+ * 如果接口没有返回此key 或者HTTP连接失败时 则取defaultTip当做通用提示文案, 页面直接取responseMsg当作通用提示即可
+ */
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *messageTipKeyAndFailInfo;
 
 /** 全局网络请求拦截类 */
 @property (nonatomic, strong) Class         urlSessionProtocolClasses;

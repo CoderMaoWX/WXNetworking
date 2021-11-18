@@ -99,7 +99,7 @@ static AFHTTPSessionManager *_sessionManager;
     NSString *method = [self.class configRequestType][@(self.requestType)];
     NSMutableURLRequest *request = nil;
     
-    if (self.requestType == WXNetworkRequestTypePOST && self.uploadFileDataArr.count>0) {
+    if (self.requestType == WXRequestMethod_POST && self.uploadFileDataArr.count>0) {
         request = [manager.requestSerializer multipartFormRequestWithMethod:method
                                             URLString:self.requestUrl
                                            parameters:self.finalParameters
@@ -138,12 +138,12 @@ static AFHTTPSessionManager *_sessionManager;
 
 + (NSDictionary *)configRequestType {
     return @{
-        @(WXNetworkRequestTypePOST)   : @"POST",
-        @(WXNetworkRequestTypeGET)    : @"GET",
-        @(WXNetworkRequestTypeHEAD)   : @"HEAD",
-        @(WXNetworkRequestTypePUT)    : @"PUT",
-        @(WXNetworkRequestTypeDELETE) : @"DELETE",
-        @(WXNetworkRequestTypePATCH)  : @"PATCH",
+        @(WXRequestMethod_POST)   : @"POST",
+        @(WXRequestMethod_GET)    : @"GET",
+        @(WXRequestMethod_HEAD)   : @"HEAD",
+        @(WXRequestMethod_PUT)    : @"PUT",
+        @(WXRequestMethod_DELETE) : @"DELETE",
+        @(WXRequestMethod_PATCH)  : @"PATCH",
     };
 }
 

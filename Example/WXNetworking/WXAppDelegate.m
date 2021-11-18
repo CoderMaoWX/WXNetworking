@@ -34,7 +34,7 @@ void UncaughtExceptionHandler(NSException *exception) {
 //    return;
     
     WXNetworkRequest *api = [[WXNetworkRequest alloc] init];
-    api.requestType = WXNetworkRequestTypePOST;
+    api.requestType = WXRequestMethod_POST;
     api.requestUrl = @"http://wxpusher.zjiecode.com/api/send/message";
     
     api.parameters = @{
@@ -47,7 +47,7 @@ void UncaughtExceptionHandler(NSException *exception) {
         @"url" : @"https://www.zaful.com",
     };
     
-    [api startRequestWithBlock:^(WXResponseModel *responseModel) {
+    [api startRequest:^(WXResponseModel *responseModel) {
     
     }];
 }

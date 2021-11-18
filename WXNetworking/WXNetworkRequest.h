@@ -14,10 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface WXResponseModel : NSObject<NSCopying, NSCoding>
 @property (nonatomic, assign, readonly) BOOL                        isSuccess;
 @property (nonatomic, assign, readonly) BOOL                        isCacheData;
-@property (nonatomic, assign, readonly) CGFloat                     responseDuration;
+@property (nonatomic, assign, readonly) CGFloat                     duration;
 @property (nonatomic, assign, readonly) NSInteger                   responseCode;
-@property (nonatomic, strong, readonly, nullable) id                responseCustomModel;//解析成指定的模型
-@property (nonatomic, strong, readonly, nullable) id                responseObject;//NSDictionary/UIImage/NSData/...
+@property (nonatomic, strong, readonly, nullable) id                responseObject;//NSDictionary/ UIImage/ NSData/...
+@property (nonatomic, strong, readonly, nullable) id                parseModel;//解析自定义模型
 @property (nonatomic, strong, readonly, nullable) NSDictionary      *responseDict;
 @property (nonatomic, copy  , readonly, nullable) NSString          *responseMsg;
 @property (nonatomic, strong, readonly, nullable) NSError           *error;
@@ -73,17 +73,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WXNetworkRequest : WXBaseRequest
 
+/**
+ * 自定义请求成功映射Key/Value, (key可以是KeyPath模式进行匹配 如: data.status)
+ * 注意: 每个请求状态优先使用此属性判断, 如果此属性值为空, 则再取全局的 WXNetworkConfig.successStatusMap的值进行判断
+ */
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *successStatusMap;
+
 /** 请求成功时是否需要自动缓存响应数据, 默认不缓存 */
 @property (nonatomic, assign) BOOL      autoCacheResponse;
 
 /** 请求成功时自定义响应缓存数据, (返回的字典为此次需要保存的缓存数据, 返回nil时,底层则不缓存) */
 @property (nonatomic, copy) NSDictionary* (^cacheResponseBlock)(WXResponseModel *responseModel);
 
-/** 单独设置响应Model时的解析key, 否则使用单例中的全局解析 WXNetworkConfig.customModelKey */
-@property (nonatomic, copy) NSString    *customModelKey;
-
-/** 请求成功返回后解析成相应的Model返回 */
-@property (nonatomic, strong) Class     responseCustomModelCalss;
+/**
+ * 请求成功时自动解析数据模型映射:Key/ModelType, (key可以是KeyPath模式进行匹配 如: data.returnData)
+ * 成功解析的模型在 WXResponseModel.parseKeyPathModel 中返回
+ */
+@property (nonatomic, strong) NSDictionary<NSString *, Class> *parseModelMap;
 
 /** 请求转圈的父视图 */
 @property (nonatomic, strong) UIView    *loadingSuperView;
@@ -109,21 +115,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)cacheKey;
 
 /*
+ * 单个网络请求: (Block回调方式)
+ * @parm responseBlock 请求响应block
+ */
+- (NSURLSessionDataTask *)startRequest:(WXNetworkResponseBlock)responseBlock;
+
+/*
  * 单个网络请求: (代理回调方式)
  * @parm networkDelegate 请求成功失败回调代理
  */
 - (NSURLSessionDataTask *)startRequestWithDelegate:(id<WXNetworkDelegate>)responseDelegate;
-
-/*
- * 单个网络请求: (Block回调方式)
- * @parm responseBlock 请求响应block
- */
-- (NSURLSessionDataTask *)startRequestWithBlock:(WXNetworkResponseBlock)responseBlock;
-
 /**
  * 取消局部请求链接。（可用于用户退出界面，或搜索框连续请求这样的需求）
  */
-+ (void)cancelRequestsWithApiList:(NSArray<WXNetworkRequest *> *)requestList;
++ (void)cancelRequestsList:(NSArray<WXNetworkRequest *> *)requestList;
 
 /**
  * 取消全局请求管理数组中所有请求操作 (可在注销,退出登录,内存警告时调用此方法)
@@ -157,9 +162,9 @@ NS_ASSUME_NONNULL_BEGIN
  @param batchRequestArr 请求WXNetworkRequest对象数组
  @param waitAllDone 是否等待全部请求完成才回调, 否则回调多次
  */
-+ (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
-                batchRequests:(NSArray<WXNetworkRequest *> *)batchRequestArr
-                  waitAllDone:(BOOL)waitAllDone;
++ (void)startRequest:(WXNetworkBatchBlock)responseBlock
+       batchRequests:(NSArray<WXNetworkRequest *> *)batchRequestArr
+         waitAllDone:(BOOL)waitAllDone;
 
 /**
  批量网络请求: (实例方法:Block回调方式)
@@ -167,8 +172,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param responseBlock 请求全部完成后的响应block回调
  @param waitAllDone 是否等待全部请求完成才回调, 否则回调多次
  */
-- (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
-                  waitAllDone:(BOOL)waitAllDone;
+- (void)startRequest:(WXNetworkBatchBlock)responseBlock
+         waitAllDone:(BOOL)waitAllDone;
 
 /**
  批量网络请求: (实例方法:代理回调方式)

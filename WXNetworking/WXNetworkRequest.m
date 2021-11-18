@@ -25,11 +25,11 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 @interface WXResponseModel ()
 @property (nonatomic, assign, readwrite) BOOL              isSuccess;
 @property (nonatomic, assign, readwrite) BOOL              isCacheData;
-@property (nonatomic, strong, readwrite) id                responseCustomModel;
-@property (nonatomic, strong, readwrite) id                responseObject;//responseObject: NSDictionary/UIImage/NSData/...
-@property (nonatomic, strong, readwrite) NSDictionary      *responseDict;
-@property (nonatomic, assign, readwrite) CGFloat           responseDuration;
+@property (nonatomic, assign, readwrite) CGFloat           duration;
 @property (nonatomic, assign, readwrite) NSInteger         responseCode;
+@property (nonatomic, strong, readwrite) id                responseObject;//NSDictionary/ UIImage/ NSData/...
+@property (nonatomic, strong, readwrite) id                parseModel;
+@property (nonatomic, strong, readwrite) NSDictionary      *responseDict;
 @property (nonatomic, copy  , readwrite) NSString          *responseMsg;
 @property (nonatomic, strong, readwrite) NSError           *error;
 @property (nonatomic, strong, readwrite) NSHTTPURLResponse *urlResponse;
@@ -64,24 +64,58 @@ typedef NS_ENUM(NSInteger, WXRequestMulticenterType) {
 - (void)configModel:(WXNetworkRequest *)requestApi
        responseDict:(NSDictionary *)responseDict
 {
-    if (requestApi.responseCustomModelCalss && [responseDict isKindOfClass:[NSDictionary class]]) {
-        NSString *customModelKey = requestApi.customModelKey;
+    if (![responseDict isKindOfClass:[NSDictionary class]]) return;
+    NSDictionary *parseDict = requestApi.parseModelMap;
+    if (![parseDict isKindOfClass:[NSDictionary class]] || parseDict.count != 1) return;
+    
+    NSString *parseModelKey = parseDict.allKeys.firstObject;
+    Class parseModelClass = parseDict.allValues.firstObject;
+    
+    if ([parseModelKey isKindOfClass:[NSString class]]
+        && parseModelKey.length > 0 && parseModelClass) {
+        NSObject *matchModelDict = nil;
         
-        if (!([customModelKey isKindOfClass:[NSString class]] && customModelKey.length > 0)) {
-            customModelKey = [WXNetworkConfig sharedInstance].customModelKey;
-        }
-        if ([customModelKey isKindOfClass:[NSString class]] && customModelKey.length > 0) {
-            NSObject *customObj = responseDict[customModelKey];
-            
-            if ([customObj isKindOfClass:[NSDictionary class]]) {
-                self.responseCustomModel = [requestApi.responseCustomModelCalss yy_modelWithJSON:customObj];
-                
-            } else if ([customObj isKindOfClass:[NSArray class]]) {
-                self.responseCustomModel = [NSArray yy_modelArrayWithClass:requestApi.responseCustomModelCalss json:customObj];
+        //1.如果包含点(.)连接, 则采用KeyPath模式寻找匹配解析模型的关键key
+        if ([parseModelKey containsString:@"."]) {
+            id lastMatchValue = responseDict;
+            for (NSString *tmpKey in [parseModelKey componentsSeparatedByString:@"."]) {
+                if (lastMatchValue == nil) {
+                    return;
+                } else {
+                    lastMatchValue = [self findParseDict:tmpKey respValue:lastMatchValue];
+                }
             }
+            matchModelDict = lastMatchValue;
+            
+        } else { //2.采用直接查找匹配请求成功标识
+            matchModelDict = responseDict[parseModelKey];
+        }
+        
+        if ([matchModelDict isKindOfClass:[NSDictionary class]]) {
+            self.parseModel = [parseModelClass yy_modelWithJSON:matchModelDict];
+            
+        } else if ([matchModelDict isKindOfClass:[NSArray class]]) {
+            self.parseModel = [NSArray yy_modelArrayWithClass:parseModelClass json:matchModelDict];
         }
     }
 }
+
+///寻找最合适的解析: 字典/数组
+- (id)findParseDict:(NSString *)modelKey respValue:(NSDictionary *)lastValueDict {
+    if (![modelKey isKindOfClass:[NSString class]] ||
+        ![lastValueDict isKindOfClass:[NSDictionary class]]) {
+        return nil;
+    }
+    __block id dictValue = nil;
+    [lastValueDict enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([modelKey isEqualToString:key]) {
+            dictValue = obj;
+            *stop = YES;
+        }
+    }];
+    return dictValue;
+}
+
 @end
 
 #pragma mark - =====================<WXNetworkRequest>=====================================
@@ -116,7 +150,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
  */
 - (NSURLSessionDataTask *)startRequestWithDelegate:(id<WXNetworkDelegate>)responseDelegate {
     self.responseDelegate = responseDelegate;
-    return [self startRequestWithBlock:self.configResponseCallback ?: self.configResponseDelegateCallback];
+    return [self startRequest:self.configResponseCallback ?: self.configResponseDelegateCallback];
 }
 
 - (WXNetworkResponseBlock)configResponseDelegateCallback {
@@ -134,14 +168,14 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
  * @parm successBlock 请求成功回调block
  * @parm failureBlock 请求失败回调block
  */
-- (NSURLSessionDataTask *)startRequestWithBlock:(WXNetworkResponseBlock)responseBlock {
+- (NSURLSessionDataTask *)startRequest:(WXNetworkResponseBlock)responseBlock {
     if (![self isValidRequestURL:self.requestUrl]) {
         WXNetworkLog(@"\n❌❌❌无效的请求地址= %@", self.requestUrl);
         [self configResponseBlock:responseBlock responseObj:nil];
         return nil;
     }
     if ([self checkCurrentTaskIsDoing]) {
-        [self.class cancelRequestsWithApiList:@[self]];
+        [self.class cancelRequestsList:@[self]];
     }
     void(^networkBlock)(id rsp) = ^(id responseObj) {
         [self configResponseBlock:responseBlock responseObj:responseObj];
@@ -156,7 +190,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         if (self.retryCount == 0) {
             WXNetworkLog(@"\n👉👉👉已发出网络请求= %@", self.requestUrl);
         } else {
-            WXNetworkLog(@"\n👉👉👉请求失败,第 %@ 次尝试重新请求=", self.requestUrl);
+            WXNetworkLog(@"\n👉👉👉请求失败,第【 %@ 】次尝试重新请求=", self.retryCount, self.requestUrl);
         }
     }
     return task;
@@ -174,24 +208,36 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         [self handleMulticenter:WXNetworkRequestDidCompletion responseModel:responseModel];
     };
     
-    if (self.retryCount < self.retryCountWhenFailure
-        && [responseObj isKindOfClass:[NSError class]] &&
-        ((NSError *)responseObj).code != -999 ) {
+    if (self.retryCount < self.retryCountWhenFailure &&
+        [responseObj isKindOfClass:[NSError class]] &&
+        ![[((NSError *)responseObj) localizedDescription] isEqualToString:@"cancelled"] ) {
         
-        // -999: is manual cancelled
+        // cancelled code=-999: is manual cancelled
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             self.retryCount ++;
             handleResponseFn(responseObj);
-            [self startRequestWithBlock:responseBlock];
+            [self startRequest:responseBlock];
         });
     } else {
         handleResponseFn(responseObj);
     }
 }
 
+- (NSString *)configFailMessage {
+    NSString *defaultTip = KWXRequestFailueTipMessage;
+    NSDictionary *messageDefaultInfo = [WXNetworkConfig sharedInstance].messageTipKeyAndFailInfo;
+    if ([messageDefaultInfo isKindOfClass:[NSDictionary class]]) {
+        NSString *toastText = messageDefaultInfo.allValues.firstObject;
+        if (![toastText isKindOfClass:[NSString class]] || toastText.length == 0) {
+            defaultTip = toastText;
+        }
+    }
+    return defaultTip;
+}
+
 - (WXResponseModel *)configResponseModel:(id)responseObj {
     WXResponseModel *rspModel  = [[WXResponseModel alloc] init];
-    rspModel.responseDuration  = [self getCurrentTimestamp] - self.requestDuration;
+    rspModel.duration          = [self getCurrentTimestamp] - self.requestDuration;
     rspModel.apiUniquelyIp     = self.apiUniquelyIp;
     rspModel.responseObject    = responseObj;
     
@@ -200,39 +246,97 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         rspModel.urlResponse   = (NSHTTPURLResponse *)(self.requestDataTask.response);
     }
     
-    if (!responseObj || [responseObj isKindOfClass:[NSError class]] ) {
-        NSString *domain = responseObj ? ((NSError *)responseObj).domain : self.configFailMessage;
-        NSInteger code = responseObj ? ((NSError *)responseObj).code : -444;
-        NSError *rspError = [NSError errorWithDomain:domain code:code userInfo:nil];
-        
-        rspModel.responseMsg   = self.configFailMessage;
-        rspModel.responseCode  = code;
-        rspModel.error         = rspError;
+    WXNetworkConfig *config    = [WXNetworkConfig sharedInstance];
+    NSString *messageKey = nil;
+    NSString *messageValue = KWXRequestFailueTipMessage;
+    if (config.messageTipKeyAndFailInfo.count == 1) {
+        messageKey = config.messageTipKeyAndFailInfo.allKeys.firstObject;
+        messageValue = config.messageTipKeyAndFailInfo.allValues.firstObject;
+    }
+    NSInteger defaultErrorCode = -444;
+    
+    if (!responseObj || [responseObj isKindOfClass:[NSError class]]) {
+        if ([responseObj isKindOfClass:[NSError class]]) {
+            rspModel.error         = (NSError *)responseObj;
+            rspModel.responseMsg   = messageValue;
+            rspModel.responseCode  = rspModel.error.code;
+        } else {
+            rspModel.error         = [NSError errorWithDomain:messageValue code:defaultErrorCode userInfo:nil];;
+            rspModel.responseMsg   = messageValue;
+            rspModel.responseCode  = defaultErrorCode;
+        }
     } else {
-        NSDictionary *responseDict  = [self packagingResponseObj:responseObj responseModel:rspModel];
-        WXNetworkConfig *config     = [WXNetworkConfig sharedInstance];
-        NSString *responseCode      = [responseDict objectForKey:config.statusKey];
-        rspModel.responseDict       = responseDict;
-        rspModel.responseCode       = [responseCode integerValue];
-        rspModel.isSuccess          = (responseCode && rspModel.responseCode == config.statusCode.integerValue);
+        NSString *statusKey = nil;
+        NSString *successValue = nil;
+        if (self.successStatusMap.count == 1) {
+            statusKey = self.successStatusMap.allKeys.firstObject;
+            successValue = self.successStatusMap.allValues.firstObject;
+            
+        } else if (config.successStatusMap.count == 1) {
+            statusKey = config.successStatusMap.allKeys.firstObject;
+            successValue = config.successStatusMap.allValues.firstObject;
+        }
         
-        NSString *msg = responseDict[config.messageKey];
+        NSDictionary *responseDict  = [self packagingResponseObj:responseObj responseModel:rspModel];
+        rspModel.responseDict       = responseDict;
+        rspModel.responseCode       = defaultErrorCode;
+        
+        //1.如果包含点(.)连接,则采用KeyPath模式匹配查找请求成功标识
+        if ([statusKey containsString:@"."]) {
+            id lastMatchValue = responseDict;
+            for (NSString *tmpKey in [statusKey componentsSeparatedByString:@"."]) {
+                if (lastMatchValue == nil) {
+                    break;
+                } else { //寻找匹配请求成功的关键字典
+                    lastMatchValue = [self findAppositeDict:tmpKey respValue:lastMatchValue];
+                }
+            }
+            //寻找匹配请求成功的关键key
+            if (lastMatchValue) {
+                NSString *findMatchValue = [NSString stringWithFormat:@"%@", lastMatchValue];
+                rspModel.isSuccess       = [findMatchValue isEqualToString:successValue];
+                rspModel.responseCode    = [findMatchValue integerValue];
+            }
+        } else { //2.采用直接查找匹配请求成功标识
+            NSString *responseCode       = [responseDict objectForKey:statusKey];
+            rspModel.isSuccess           = [responseCode isEqualToString:successValue];
+            if (responseCode) {
+                rspModel.responseCode    = [responseCode integerValue];
+            }
+        }
+        NSString *msg = responseDict[messageKey];
         if ([msg isKindOfClass:[NSString class]]) {
-            rspModel.responseMsg    = msg;
+            rspModel.responseMsg = msg;
         }
         if (rspModel.isSuccess) {
+            //解析对应的数据模型
             [rspModel configModel:self responseDict:responseDict];
         } else {
-            rspModel.responseMsg    = rspModel.responseMsg ?: self.configFailMessage;
-            rspModel.error          = [NSError errorWithDomain:rspModel.responseMsg
-                                                          code:rspModel.responseCode
-                                                      userInfo:responseDict];
+            rspModel.responseMsg = rspModel.responseMsg ?: messageValue;
+            rspModel.error       = [NSError errorWithDomain:rspModel.responseMsg
+                                                       code:rspModel.responseCode
+                                                   userInfo:responseDict];
         }
     }
     if (!rspModel.isCacheData) {
         [self handleMulticenter:WXNetworkRequestWillStop responseModel:rspModel];
     }
     return rspModel;
+}
+
+- (id)findAppositeDict:(NSString *)matchKey respValue:(NSDictionary *)respValue {
+    if (![matchKey isKindOfClass:[NSString class]] ||
+        ![respValue isKindOfClass:[NSDictionary class]]) {
+        return nil;
+    }
+    __block id dictValue = nil;
+    [respValue enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([matchKey isEqualToString:key]) {
+            dictValue = obj;
+            *stop = YES;
+        }
+    }];
+    return dictValue;
 }
 
 - (NSDictionary *)packagingResponseObj:(id)responseObj
@@ -483,7 +587,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     [_globleTasksList removeAllObjects];
 }
 
-+ (void)cancelRequestsWithApiList:(NSArray<WXNetworkRequest *> *)requestList {
++ (void)cancelRequestsList:(NSArray<WXNetworkRequest *> *)requestList {
     if (!_globleRequestList || !_globleTasksList)return ;
     [requestList enumerateObjectsUsingBlock:^(WXNetworkRequest * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [_globleRequestList removeObjectForKey:obj.managerRequestKey];
@@ -513,14 +617,6 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     NSDate *dat = [NSDate dateWithTimeIntervalSinceNow:0];
     NSTimeInterval timeInterval = [dat timeIntervalSince1970] * 1000;
     return timeInterval;
-}
-
-- (NSString *)configFailMessage {
-    NSString *toastText = [WXNetworkConfig sharedInstance].requestFailDefaultMessage;
-    if (![toastText isKindOfClass:[NSString class]] || toastText.length == 0) {
-        toastText = KWXRequestFailueTipMessage;
-    }
-    return toastText;
 }
 
 - (NSString *)parmatersJsonString {
@@ -563,7 +659,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
 
 /** 取消所有请求 */
 - (void)cancelAllRequest {
-    [WXNetworkRequest cancelRequestsWithApiList:self.requestArray];
+    [WXNetworkRequest cancelRequestsList:self.requestArray];
 }
 
 - (void)setRequestArray:(NSArray<WXNetworkRequest *> *)requestArray {
@@ -590,13 +686,13 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
  @param batchRequestArr 请求WXNetworkRequest对象数组
  @param waitAllDone 是否等待全部请求完成才回调, 否则回调多次
  */
-+ (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
-                batchRequests:(NSArray<WXNetworkRequest *> *)batchRequestArr
-                  waitAllDone:(BOOL)waitAllDone {
++ (void)startRequest:(WXNetworkBatchBlock)responseBlock
+       batchRequests:(NSArray<WXNetworkRequest *> *)batchRequestArr
+         waitAllDone:(BOOL)waitAllDone {
     WXNetworkBatchRequest *batchRequest = [[WXNetworkBatchRequest alloc] init];
     batchRequest.requestArray = batchRequestArr;
-    [batchRequest startRequestWithBlock:responseBlock
-                            waitAllDone:waitAllDone];
+    [batchRequest startRequest:responseBlock
+                   waitAllDone:waitAllDone];
 }
 
 /**
@@ -605,8 +701,8 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
  @param responseBlock 请求完成响应block回调
  @param waitAllDone 是否等待全部请求完成
  */
-- (void)startRequestWithBlock:(WXNetworkBatchBlock)responseBlock
-                  waitAllDone:(BOOL)waitAllDone {
+- (void)startRequest:(WXNetworkBatchBlock)responseBlock
+         waitAllDone:(BOOL)waitAllDone {
     for (WXNetworkRequest *requestApi in self.requestArray) {
         BOOL isRequestApi = [requestApi isKindOfClass:[WXNetworkRequest class]];
         if (!isRequestApi) {
@@ -623,7 +719,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
     self.hasMarkBatchFailure = NO;
     [self.responseDataArray removeAllObjects];
     for (WXNetworkRequest *requestApi in self.requestArray) {
-        [requestApi startRequestWithBlock:self.configBatchDelegateCallback];
+        [requestApi startRequest:self.configBatchDelegateCallback];
     }
 }
 

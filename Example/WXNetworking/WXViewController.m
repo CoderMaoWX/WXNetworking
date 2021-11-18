@@ -8,11 +8,13 @@
 
 #import "WXViewController.h"
 #import "WXNetworking.h"
+#import "WXParseModel.h"
 #import "AFURLResponseSerialization.h"
 
 @interface WXViewController ()<WXNetworkMulticenter, WXNetworkBatchDelegate, WXNetworkDelegate>
 @property (weak, nonatomic) IBOutlet UITextView *tipTextView;
 @property (nonatomic, strong) WXNetworkRequest *testApi;
+@property (nonatomic, strong) NSURLSessionDataTask *dataTask;
 @end
 
 @implementation WXViewController
@@ -32,17 +34,19 @@
 }
 
 - (IBAction)rightItemAction:(UIBarButtonItem *)sender {
-    [self RequestDemo2];
+    [self RequestDemo1];
 }
 
 #pragma mark -======== 测试单个请求 ========
 
 - (void)RequestDemo1 {
     WXNetworkRequest *api = [[WXNetworkRequest alloc] init];
-    api.requestType = WXNetworkRequestTypeGET;
+    api.requestType = WXRequestMethod_GET;
     api.loadingSuperView = self.view;
-    api.parameters = nil;
-    
+    api.parameters = @{@"name" : @"张三"};
+    api.successStatusMap = @{@"returnCode2" : @"SUCCESS"};
+    api.parseModelMap = @{@"data.dKeyword" : WXParseModel.class};
+
 //    api.multicenterDelegate = self;
 //    api.retryCountWhenFailure = 2;
 //    api.autoCacheResponse = YES;
@@ -50,14 +54,14 @@
 //    [api startRequestWithDelegate:self];
     
     //测试电商页面数据
-    api.requestUrl = @"http://123.207.32.32:8000/home/multidata";
+    api.requestUrl = @"http://123.207.32.32:8000/home/multidata333";
     api.responseSerializer = [AFJSONResponseSerializer serializer];//响应: text/json
     self.testApi = api;
     
     //api.requestUrl = @"http://httpbin.org/links/20/1";
     //api.responseSerializer = [AFHTTPResponseSerializer serializer];//响应: default request headers
     
-    [api startRequestWithBlock:^(WXResponseModel *responseModel) {
+    [api startRequest:^(WXResponseModel *responseModel) {
         if (responseModel.isSuccess) {
             if ([responseModel.responseObject isKindOfClass:[NSData class]]) {
                 NSString *repStr = [[NSString alloc] initWithData:responseModel.responseObject encoding:(NSUTF8StringEncoding)];
@@ -75,14 +79,14 @@
 
 - (void)RequestDemo2 {
     WXNetworkRequest *api1 = [[WXNetworkRequest alloc] init];
-    api1.requestType = WXNetworkRequestTypeGET;
+    api1.requestType = WXRequestMethod_GET;
     api1.loadingSuperView = self.view;
     api1.multicenterDelegate = self;
     api1.requestUrl = @"http://wthrcdn.etouch.cn/weather_mini";
     api1.parameters = @{@"city" : @"北京"};
     
     WXNetworkRequest *api2 = [[WXNetworkRequest alloc] init];
-    api2.requestType = WXNetworkRequestTypeGET;
+    api2.requestType = WXRequestMethod_GET;
     api2.loadingSuperView = self.view;
     api2.multicenterDelegate = self;
     api2.requestUrl = @"https://www.tianqiapi.com/api";
@@ -100,14 +104,14 @@
     
 /**
     ///2. Block方法
-    [batchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
+    [batchRequest startRequest:^(WXNetworkBatchRequest *batchRequest) {
         NSLog(@"批量请求回调1: %@", batchRequest.responseDataArray.firstObject);
         NSLog(@"批量请求回调2: %@", [batchRequest responseForRequest:api1]);
     } waitAllDone:YES];
 
 
     ///3. 类Block方法
-    [WXNetworkBatchRequest startRequestWithBlock:^(WXNetworkBatchRequest *batchRequest) {
+    [WXNetworkBatchRequest startRequest:^(WXNetworkBatchRequest *batchRequest) {
         NSLog(@"批量请求回调3: %@", [batchRequest responseForRequest:api1]);
     } batchRequests:@[api1, api2] waitAllDone:YES];
 */
@@ -118,7 +122,7 @@
 
 - (void)RequestDemo3 {
     WXNetworkRequest *api = [[WXNetworkRequest alloc] init];
-    api.requestType = WXNetworkRequestTypeGET;
+    api.requestType = WXRequestMethod_GET;
     api.loadingSuperView = self.view;
     api.parameters = nil;
     
@@ -134,7 +138,7 @@
     //api.requestUrl = @"http://i.gtimg.cn/qqshow/admindata/comdata/vipThemeNew_item_2135/2135_i_4_7_i_1.zip";
     //api.responseSerializer = [AFHTTPResponseSerializer serializer];//响应: default request headers
     
-    [api startRequestWithBlock:^(WXResponseModel *responseModel) {
+    [api startRequest:^(WXResponseModel *responseModel) {
         if (responseModel.isSuccess) {
             NSLog(@"下载图片成功: %@", responseModel.responseObject);
             if ([responseModel.responseObject isKindOfClass:[UIImage class]]) {
@@ -147,6 +151,53 @@
         }
     }];
 }
+
+#pragma mark -======== 测试上传文件 ========
+
+//上传图片文件
+- (void)RequestDemo6 {
+    WXNetworkRequest *api = [[WXNetworkRequest alloc] init];
+    api.requestType = WXRequestMethod_POST;
+    api.loadingSuperView = self.view;
+    api.parameters =  @{
+        @"appName"  :   @"ZAFUL",
+        @"platform" :   @"iOS",
+        @"version"  :   @"7.3.3",
+    };
+    api.requestUrl = @"http://10.8.31.5:8090/uploadImage";
+    UIImage *image = [UIImage imageNamed:@"about_logo"];
+    NSData *imageData = UIImagePNGRepresentation(image);
+    if (imageData) {
+        api.uploadFileDataArr = @[imageData];
+        api.uploadConfigDataBlock = ^(id<AFMultipartFormData> formData) {
+            
+            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+            [formatter setTimeZone:[NSTimeZone localTimeZone]];
+            [formatter setDateFormat:@"yyyy-MM-dd-HHmmssSSS"];
+            NSString *locationString = [formatter stringFromDate:[NSDate date]];
+            NSString *fileName = [locationString stringByAppendingFormat:@".%@", @"png"];
+            [formData appendPartWithFileData:imageData
+                                        name:@"files"
+                                    fileName:fileName
+                                    mimeType:@"png"];
+        };
+    }
+    api.responseSerializer = [AFJSONResponseSerializer serializer];//响应: text/json
+    
+    [api startRequest:^(WXResponseModel *responseModel) {
+        if (responseModel.isSuccess) {
+            NSLog(@"上传图片文件成功: %@", @"http://10.8.31.5:8090/showImages");
+            if ([responseModel.responseObject isKindOfClass:[UIImage class]]) {
+                self.tipTextView.hidden = YES;
+                self.view.backgroundColor = [UIColor colorWithPatternImage:responseModel.responseObject];
+            }
+        } else {
+            self.tipTextView.hidden = NO;
+            self.tipTextView.text = responseModel.error.domain;
+        }
+    }];
+}
+
 
 #pragma mark - <WXNetworkBatchDelegate>
 

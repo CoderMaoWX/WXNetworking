@@ -74,7 +74,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
     uploadInfo[@"body"]             = body;
     uploadInfo[@"platform"]         = [NSString stringWithFormat:@"%@-iOS-%@", appName, catchLogTag];
     uploadInfo[@"device"]           = [[UIDevice currentDevice] model];
-    uploadInfo[@"feeTime"]          = @(responseModel.responseDuration);
+    uploadInfo[@"feeTime"]          = @(responseModel.duration);
     uploadInfo[@"timestamp"]        = [formatter stringFromDate:[NSDate date]];
     uploadInfo[@"url"]              = request.requestUrl;
     uploadInfo[@"request"]          = requestJson;
@@ -97,14 +97,15 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
  */
 + (NSString *)appendingPrintfLogHeader:(WXResponseModel *)responseModel
                                request:(WXNetworkRequest *)request {
-    BOOL isSuccess          = responseModel.isSuccess;
+    BOOL isSuccess          = [responseModel.responseDict isKindOfClass:[NSDictionary class]];
     BOOL isCacheData        = responseModel.isCacheData;
     NSString *requestJson   = [request valueForKey:@"parmatersJsonString"];
+    if (![requestJson isKindOfClass:[NSString class]] || requestJson.length == 0) { requestJson = @"{}"; }
     NSString *hostTitle     = [WXNetworkConfig sharedInstance].networkHostTitle ? : @"";
     NSDictionary *requestHeadersInfo = request.requestDataTask.originalRequest.allHTTPHeaderFields;
     NSString *successFlag   = isCacheData ? @"❤️❤️❤️" : (isSuccess ? @"✅✅✅" : @"❌❌❌");
     NSString *statusString  = isCacheData ? @"本地缓存数据成功" : (isSuccess ? @"网络数据成功" : @"网络数据失败");
-    NSString *logBody = [NSString stringWithFormat:@"\n%@请求接口地址%@= %@\n请求参数json=\n%@\n\n请求头信息: %@\n\n%@返回=\n",
+    NSString *logBody = [NSString stringWithFormat:@"\n%@请求接口地址%@= %@\n请求参数json= %@\n\n请求头信息: %@\n\n%@返回=\n",
                          successFlag, hostTitle, request.requestUrl,
                          requestJson, requestHeadersInfo, statusString];
     return logBody;
@@ -117,7 +118,7 @@ NSString *const KWXNetworkBatchRequestDeallocDesc  = @"WXNetworkBatchRequest dea
  @return 日志头部字符串
  */
 + (NSString *)appendingPrintfLogFooter:(WXResponseModel *)responseModel {
-    if (responseModel.isSuccess) {
+    if ([responseModel.responseDict isKindOfClass:[NSDictionary class]]) {
         NSString *responseJson  = [responseModel.responseDict description];
         if ([responseModel.responseDict isKindOfClass:[NSDictionary class]]) {
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:responseModel.responseDict options:NSJSONWritingPrettyPrinted error:nil];
