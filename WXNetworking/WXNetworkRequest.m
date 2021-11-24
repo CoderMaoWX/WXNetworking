@@ -355,6 +355,7 @@ static NSMutableDictionary<NSString *, NSURLSessionDataTask *> * _globleTasksLis
         NSData *rspData = [responseObj mutableCopy];
         if ([rspData isKindOfClass:[NSData class]]) {
             responseModel.responseObject = rspData;
+            responseDcit[@"responseObject"] = [NSString stringWithFormat:@"Binary Data, length: %ld", rspData.length];
         }
     } else if ([responseObj isKindOfClass:[NSString class]]) {
         NSData *data = [(NSString *)responseObj dataUsingEncoding:NSUTF8StringEncoding];

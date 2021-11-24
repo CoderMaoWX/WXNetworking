@@ -27,7 +27,7 @@
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *messageTipKeyAndFailInfo;
 
 /** 全局网络请求拦截类 */
-@property (nonatomic, strong) Class         urlSessionProtocolClasses;
+@property (nonatomic, strong) Class urlSessionProtocolClasses;
 
 /** 取请求缓存时用到的YYChache对象 */
 @property (nonatomic, strong, readonly) YYDiskCache *networkDiskCache;

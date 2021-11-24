@@ -44,7 +44,7 @@
     api.requestType = WXRequestMethod_GET;
     api.loadingSuperView = self.view;
     api.parameters = @{@"name" : @"张三"};
-    api.successStatusMap = @{@"returnCode2" : @"SUCCESS"};
+    api.successStatusMap = @{@"returnCode" : @"SUCCESS"};
     api.parseModelMap = @{@"data.dKeyword" : WXParseModel.class};
 
 //    api.multicenterDelegate = self;
@@ -54,7 +54,7 @@
 //    [api startRequestWithDelegate:self];
     
     //测试电商页面数据
-    api.requestUrl = @"http://123.207.32.32:8000/home/multidata333";
+    api.requestUrl = @"http://123.207.32.32:8000/home/multidata";
     api.responseSerializer = [AFJSONResponseSerializer serializer];//响应: text/json
     self.testApi = api;
     

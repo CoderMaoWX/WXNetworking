@@ -26,13 +26,17 @@ static AFHTTPSessionManager *_sessionManager;
 
 + (void)initialize {
     NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-    Class class = [WXNetworkConfig sharedInstance].urlSessionProtocolClasses;
+    WXNetworkConfig *config = [WXNetworkConfig sharedInstance];
+    if (config.forbidProxyCaught) {
+        sessionConfig.connectionProxyDictionary = @{};
+    }
+    Class class = config.urlSessionProtocolClasses;
     if (class) {
         sessionConfig.protocolClasses = @[class];
     }
     //多路径TCP服务，提供Wi-Fi和蜂窝之间的无缝切换，以保持连接。
     if (@available(iOS 11.0, *)) {
-        if ([WXNetworkConfig sharedInstance].openMultipathService) {
+        if (config.openMultipathService) {
             sessionConfig.multipathServiceType = NSURLSessionMultipathServiceTypeHandover;
         }
     }
@@ -170,56 +174,6 @@ static AFHTTPSessionManager *_sessionManager;
         };
     }
     return _uploadConfigDataBlock;
-}
-
-@end
-
-//=====================================禁止网络代理抓包=====================================
-
-@implementation NSURLSession (WXHttpProxy)
-
-+(void)wx_swizzingMethod:(Class)cls orgSel:(SEL)orgSel swiSel:(SEL)swiSel {
-    Method orgMethod = class_getClassMethod(cls, orgSel);
-    Method swiMethod = class_getClassMethod(cls, swiSel);
-    method_exchangeImplementations(orgMethod, swiMethod);
-}
-
-+(void)load {
-    [super load];
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        Class class = [NSURLSession class];
-        [self wx_swizzingMethod:class
-                         orgSel:NSSelectorFromString(@"sessionWithConfiguration:")
-                         swiSel:NSSelectorFromString(@"wx_sessionWithConfiguration:")];
-        
-        [self wx_swizzingMethod:class
-                         orgSel:NSSelectorFromString(@"sessionWithConfiguration:delegate:delegateQueue:")
-                         swiSel:NSSelectorFromString(@"wx_sessionWithConfiguration:delegate:delegateQueue:")];
-    });
-}
-
-+(NSURLSession *)wx_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration
-                                    delegate:(nullable id<NSURLSessionDelegate>)delegate
-                               delegateQueue:(nullable NSOperationQueue *)queue {
-    if (!configuration){
-        configuration = [[NSURLSessionConfiguration alloc] init];
-    }
-    BOOL isForbid = [WXNetworkConfig sharedInstance].forbidProxyCaught;
-    if(isForbid){
-        configuration.connectionProxyDictionary = @{};
-    }
-    return [self wx_sessionWithConfiguration:configuration
-                                    delegate:delegate
-                               delegateQueue:queue];
-}
-
-+(NSURLSession *)wx_sessionWithConfiguration:(NSURLSessionConfiguration *)configuration {
-    BOOL isForbid = [WXNetworkConfig sharedInstance].forbidProxyCaught;
-    if (configuration && isForbid){
-        configuration.connectionProxyDictionary = @{};
-    }
-    return [self wx_sessionWithConfiguration:configuration];
 }
 
 @end
