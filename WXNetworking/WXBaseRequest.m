@@ -26,6 +26,7 @@ static AFHTTPSessionManager *_sessionManager;
 
 + (void)initialize {
     NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+    sessionConfig.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
     WXNetworkConfig *config = [WXNetworkConfig sharedInstance];
     if (config.forbidProxyCaught) {
         sessionConfig.connectionProxyDictionary = @{};
